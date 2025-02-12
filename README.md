@@ -1,3 +1,5 @@
+![IOTA Logo White.svg](./logo.svg)
+
 # IOTA Improvement Proposal (IIP) Repository
 
 IIPs are improvement proposals for bettering the IOTA technology stack.
