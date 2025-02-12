@@ -1,0 +1,5 @@
+[book]
+title = "The Iota Improvement Proposal (IIP) Book"
+
+[output.html]
+no-section-label = true
