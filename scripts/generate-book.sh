@@ -26,9 +26,13 @@ find ./src ! -type d -name '*.md' ! -path ./src ! -path ./src/SUMMARY.md -print0
   | sort -z \
   | while read -r -d '' file;
 do
-    ./format-iip-header.sh $file
+    ./scripts/format-iip-header.sh $file
 done
 
-ln -fs README.md src/introduction.md
+cp README.md src/introduction.md
+cp logo_dark.svg src/logo_dark.svg
+
+# replace the <picture> tag with a Markdown image reference
+./scripts/format-readme.sh src/introduction.md
 
 mdbook build

@@ -47,7 +47,7 @@ jobs:
                   args: mdbook
 
             - name: Generate summary
-              run: ./generate-book.sh
+              run: ./scripts/generate-book.sh
 
             # HTML publication as Github Page
             #
