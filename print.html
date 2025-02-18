@@ -200,17 +200,17 @@ type: Process
 created: 2025-02-12
 </pre>
 <h2 id="abstract"><a class="header" href="#abstract">Abstract</a></h2>
-<p>An IOTA Improvement Proposal (IIP) is a design document providing information to the IOTA community, or describing a new feature for IOTA or its processes or environment. The IIP should provide a concise technical specification of the feature and a rationale for the feature.</p>
+<p>An IOTA Improvement Proposal (IIP) is a design document providing information to the IOTA community, or describing a new feature for IOTA or its processes or environment. The IIP should provide a high level technical design or specification and the rationale of the feature.</p>
 <p>IIPs are the primary mechanism for proposing new features and standards to the IOTA protocol and related applications, furthermore for collecting input from the wider community and documenting the design decisions that go into the IOTA technology.</p>
 <p>IIPs are maintained as text files inside the repository, therefore the history and evolution of protocol features are transparent and well documented.</p>
 <p>This IIP defines the IIP Process itself to establish a common way of working.</p>
 <h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
 <p>The motivation of this IIP is to create a public platform to discuss improvement ideas related to the IOTA technology and define an easy-to-follow process of contributing to their development and implementation.</p>
-<h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
+<h2 id="design--specification"><a class="header" href="#design--specification">Design / Specification</a></h2>
 <h3 id="iip-types"><a class="header" href="#iip-types">IIP Types</a></h3>
 <p>There are 3 types of IIPs:</p>
 <ul>
-<li>A <strong>Standards Track IIP</strong> describes any change that affects most or all IOTA node implementations, such as a change to the network protocol, a change in transaction validity rules, or any change or addition that affects the interoperability of applications using IOTA. Standards Track IIPs consist of two parts, a design document and a reference implementation. Standards Track IIPs can be broken down into layers:
+<li>A <strong>Standards Track IIP</strong> describes any change that affects most or all IOTA node implementations, such as a change to the network protocol, a change in transaction validity rules, or any change or addition that affects the interoperability of applications using IOTA. Standards Track IIPs consist of two parts, a design document and a reference implementation. Standards Track IIPs can be broken down into following layers:
 <ol>
 <li><strong>Core</strong>: Changes or additions to core features of IOTA, including consensus, execution, storage, and account signatures</li>
 <li><strong>Networking</strong>: Changes or additions to IOTA's mempool or network protocols</li>
@@ -222,14 +222,14 @@ created: 2025-02-12
 <li>An <strong>Informational IIP</strong> describes an IOTA design issue, or provides general guidelines or information to the IOTA community, but does not propose a new feature. Informational IIPs do not necessarily represent an IOTA community consensus or recommendation, so users and implementors are free to ignore Informational IIPs or follow their advice.</li>
 <li>A <strong>Process IIP</strong> describes a process surrounding IOTA, or proposes a change to (or an event in) a process. Process IIPs are like Standards Track IIPs but apply to areas other than the IOTA protocol itself. They may propose an implementation, but not to IOTA's codebase; they often require community consensus; unlike Informational IIPs, they are more than recommendations, and users are typically not free to ignore them. Examples include procedures, guidelines, changes to the decision-making process, and changes to the tools or environment used in IOTA development.</li>
 </ul>
-<p>It is highly recommended that a IIP outlines a single key proposal, idea or feature; the narrower the scope of the IIP is, the easier it becomes to reach consensus on the proposed feature and incorporate it into the protocol. Several IIPs can form a bundle of changes when linked to each other.</p>
+<p>It is highly recommended that an IIP outlines a single key proposal, idea or feature; the narrower the scope of the IIP is, the easier it becomes to reach consensus on the proposed feature and incorporate it into the protocol. Several IIPs can form a bundle of changes when linked to each other.</p>
 <h3 id="iip-format-and-structure"><a class="header" href="#iip-format-and-structure">IIP Format and Structure</a></h3>
 <p>IIPs must adhere to the format and structure requirements that are outlined in this document. A IIP is written in <a href="https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax">Markdown</a> format and should have the following parts (optional parts are marked with a *):</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
 <tr><td>Preamble</td><td><a href="https://www.ietf.org/rfc/rfc822.txt">RFC 822</a> style headers containing metadata about the IIP, including the IIP number, a short descriptive title (limited to a maximum of 44 characters), a description (limited to a maximum of 140 characters), and the author details. Irrespective of the category, the title and description should not include IIP number. <a href="iips/IIP-0001/iip-0001.html#iip-header-preamble">See below</a> for details.</td></tr>
 <tr><td>Abstract</td><td>A short summary of the technical issue being addressed by the IIP.</td></tr>
 <tr><td>Motivation</td><td>A motivation section is critical for IIPs that want to change the IOTA protocol. It should clearly explain why the existing protocol specification is inadequate to address the problem that the IIP solves. IIP submissions without sufficient motivation may be rejected outright.</td></tr>
-<tr><td>Specification</td><td>The technical specification should describe the syntax and semantics of any new feature. The specification should be detailed enough to allow competing, interoperable implementations for any of the current IOTA platforms.</td></tr>
+<tr><td>Specification</td><td>The technical specification should provide a concise, high level design of the change or feature, without going deep into implementation details. It should also describe the syntax and semantics of any new feature.</td></tr>
 <tr><td>Rationale</td><td>The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made. It should describe alternate designs that were considered and related work, e.g. how the feature is supported in other languages. The rationale may also provide evidence of consensus within the community, and should discuss important objections or concerns raised during discussion.</td></tr>
 <tr><td>Backwards Compatibility*</td><td>All IIPs that introduce backwards incompatibilities must include a section describing these incompatibilities and their severity. The IIP must explain how the author proposes to deal with these incompatibilities. IIP submissions without a sufficient backwards compatibility treatise may be rejected outright.</td></tr>
 <tr><td>Test Cases*</td><td>Test cases for an implementation are mandatory for IIPs that are affecting consensus changes. Tests should either be inlined in the IIP as data or placed in the IIP folder.</td></tr>
@@ -242,9 +242,9 @@ created: 2025-02-12
 <h3 id="iip-process"><a class="header" href="#iip-process">IIP Process</a></h3>
 <p>Parties involved in the process are:</p>
 <ul>
-<li><em>IIP author</em>: you, the champion who proposes a new IIP. It is the responsibility of the <em>IIP author</em> to drive the progression of the IIP to <code>Active</code> status. This includes initiating public discussion and implementing the proposal as well.</li>
+<li><em>IIP author</em>: you, the champion who proposes a new IIP. <strong>It is the responsibility of the <em>IIP author</em> to drive the progression of the IIP to <code>Active</code> status. This includes initiating public discussion and implementing the proposal as well.</strong></li>
 <li><em>IIP editor</em>: they deal with administering the IIP process and ensure process requirements are fulfilled.</li>
-<li><em>Technical Committee</em>: technical experts of IOTA who evaluate new IIPs, provide feedback and ensure that only sound and secure features are added to the protocol.</li>
+<li><em>Core contributors</em>: technical experts of IOTA who evaluate new IIPs, provide feedback and ensure that only sound and secure features are added to the protocol.</li>
 </ul>
 <h4 id="iip-statuses"><a class="header" href="#iip-statuses">IIP Statuses</a></h4>
 <p>The status of the IIP describes its current stage in the IIP process.</p>
@@ -261,7 +261,7 @@ created: 2025-02-12
 </tbody></table>
 </div>
 <h4 id="iip-workflow"><a class="header" href="#iip-workflow">IIP Workflow</a></h4>
-<p><em>How are new proposal get added to the protocol?</em></p>
+<h5 id="how-are-new-proposal-get-added-to-the-protocol"><a class="header" href="#how-are-new-proposal-get-added-to-the-protocol">How are new proposal get added to the protocol?</a></h5>
 <ol>
 <li>
 <p>All IIPs begin life as an <code>Idea</code> proposed in the public <a href="https://github.com/iotaledger/iips/discussions">IOTA discussion forum, that is the GitHub Discussion page of the IIP repository</a>. A public, open discussion should predate any formal IIP submission. If you want to propel your proposal to acceptance, you should make sure to build consensus and support in the community around your proposed changes already in the idea stage.</p>
@@ -273,7 +273,7 @@ created: 2025-02-12
 <p>A <em>IIP editor</em> reviews your PR and assigns a IIP number to the draft.</p>
 </li>
 <li>
-<p>The <em>Technical Committee</em> as well as the broader public evaluate the draft proposal and might ask for modifications or clarifications. The proposal can only be merged into the repository as a draft if it represents a net improvement and does not complicate the protocol unduly.</p>
+<p><em>Core contributors</em> as well as the broader public evaluate the draft proposal and might ask for modifications or clarifications. The proposal can only be merged into the repository as a draft if it represents a net improvement and does not complicate the protocol unduly.</p>
 </li>
 <li>
 <p>The IIP is merged into the repo with <code>Draft</code> status by <em>IIP editor/author</em>.</p>
@@ -285,26 +285,26 @@ created: 2025-02-12
 <p>When a <code>Proposed</code> IIP is deemed to have met all appropriate criteria and its implementation has been demonstrated to work reliably in testnet environment, it is ready to be moved to the main network. Upon deployment, the IIP status must change to <code>Active</code>.</p>
 </li>
 </ol>
-<p><em>How can a IIP transition from one status to another?</em></p>
+<h5 id="how-can-a-iip-transition-from-one-status-to-another"><a class="header" href="#how-can-a-iip-transition-from-one-status-to-another">How can a IIP transition from one status to another?</a></h5>
 <p><img src="iips/IIP-0001/./process.svg" alt="image" /></p>
 <p>A <code>Draft</code> IIP might be moved to <code>Deferred</code> status by the <em>IIP author(s)</em> when they are no longer working on the proposal, but plan to continue it in the future. <em>IIP editors</em> might also move any IIPs to  <code>Deferred</code> if the proposal is not making progress.</p>
 <p>A <code>Draft</code> IIP might be moved to <code>Withdrawn</code> status by the <em>IIP author(s)</em>.</p>
-<p>A <code>Draft</code> IIP might be moved to <code>Rejected</code> status by <em>IIP editor(s)</em> or <em>Technical Committee</em> if it does not meet the appropriate IIP criteria, or no relevant progress has been demonstrated on the IIP for at least 3 years.</p>
+<p>A <code>Draft</code> IIP might be moved to <code>Rejected</code> status by <em>IIP editor(s)</em> or <em>Core contributors</em> if it does not meet the appropriate IIP criteria, or no relevant progress has been demonstrated on the IIP for at least 3 years.</p>
 <p>A <code>Draft</code> IIP might be moved to <code>Proposed</code> status by IIP author(s) if it is considered complete, has a working implementation and clear plans on how to progress it to <code>Active</code> status.</p>
 <p>A <code>Proposed</code> IIP might be moved to <code>Active</code> status if a IIP specific adoption criteria has been met. For Core IIPs this means deployment on the main network.</p>
-<p>A <code>Proposed</code> IIP might be moved to <code>Rejected</code> status by <em>IIP editor(s)</em> or <em>Technical Committee</em> if its implementation puts unduly burden and complexity on the protocol, or other significant problems are discovered during testing.</p>
+<p>A <code>Proposed</code> IIP might be moved to <code>Rejected</code> status by <em>IIP editor(s)</em> or <em>Core contributors</em> if its implementation puts unduly burden and complexity on the protocol, or other significant problems are discovered during testing.</p>
 <p>An <code>Active</code> IIP might be moved to <code>Replaced</code> status by a newer IIP. The replaced IIP must point to the IIP that replaces it.</p>
 <p>An <code>Active</code> IIP might be moved to <code>Obsolete</code> status when the feature is deprecated.</p>
-<p><em>How to champion the IIP Process as a IIP author?</em></p>
+<h5 id="how-to-champion-the-iip-process-as-a-iip-author"><a class="header" href="#how-to-champion-the-iip-process-as-a-iip-author">How to champion the IIP Process as a IIP author?</a></h5>
 <ul>
 <li>Browse the <a href="https://github.com/iotaledger/iips/discussions">idea discussion forum</a> before posting a new IIP idea. Someone else might already have proposed your idea, or a similar one. Take inspiration from previous ideas and discussions.</li>
 <li>It is your responsibility as a <em>IIP author</em> to build community consensus around your idea. Involve as many people in the discussion as you can. Use social media platforms, Discord or Reddit to raise awareness of your idea.</li>
 <li>Submit a draft IIP as a PR to the IIP repository. Put extra care into following IIP guidelines and formats. IIPs must contain a link to previous discussions on the topic, otherwise your submissions might be rejected. IIPs that do not present convincing motivation, demonstrate lack of understanding of the design's impact, or are disingenuous about the drawbacks or alternatives tend to be poorly-received.</li>
-<li>Your draft IIP gets a IIP number assigned by a <em>IIP editor</em> and receives review and feedback from the larger community as well as from the <em>Technical Committee</em>. Be prepared to revise your draft based on this input.</li>
+<li>Your draft IIP gets a IIP number assigned by a <em>IIP editor</em> and receives review and feedback from the larger community as well as from <em>Core contributors</em>. Be prepared to revise your draft based on this input.</li>
 <li>IIPs that have broad support are much more likely to make progress than those that don't receive any comments. Feel free to reach out to the <em>IIP editors</em> in particular to get help to identify stakeholders and obstacles.</li>
 <li>Submitted draft IIPs rarely go through the process unchanged, especially as alternatives and drawbacks are shown. You can make edits, big and small, to the draft IIP to clarify or change the design, but make changes as new commits to the pull request, and leave a comment on the pull request explaining your changes. Specifically, do not squash or rebase commits after they are visible on the pull request.</li>
-<li>When your draft IIP PR gets enough approvals from <em>IIP editors</em> and <em>Technical Committee</em> members, it can be merged into the repository, however, your job is far from complete! To move the draft into the next status (proposed), you have to demonstrate a working implementation of your IIP. For Core IIPs, seek help from protocol developers and/or client teams to coordinate the feature implementation. For IRCs for example you need to provide their implementation yourself.</li>
-<li>You also need to present a clear plan on how the IIP will be moved to the <code>Active</code> status, by for example agreeing on a IIP deployment strategy with the <em>Technical Committee</em> or core developers.</li>
+<li>When your draft IIP PR gets enough approvals from <em>IIP editors</em> and <em>Core contributors</em>, it can be merged into the repository, however, your job is far from complete! To move the draft into the next status (proposed), you have to demonstrate a working implementation of your IIP. For Core IIPs, seek help from protocol developers and/or client teams to coordinate the feature implementation. For IRCs for example you need to provide their implementation yourself.</li>
+<li>You also need to present a clear plan on how the IIP will be moved to the <code>Active</code> status, by for example agreeing on a IIP deployment strategy with <em>Core contributors</em>.</li>
 <li>To move your <code>Draft</code> IIP to the <code>Proposed</code> phase, submit a subsequent PR that links its implementation and devises its route to become <code>Active</code>. The latter might be an additional document in the IIP's folder, a link to a public discussion or a short description or comment on the PR itself.</li>
 <li>To move your <code>Proposed</code> IIP to <code>Active</code> status you need to demonstrate that it has met its specific adoption criteria. For Core IIPs, this means that majority of network nodes support it. For other IIPs, especially for IRCs, adoption might mean that the standard is publicly available, well documented and there are applications building on it.</li>
 </ul>
@@ -338,12 +338,12 @@ created: 2025-02-12
 <p>If you are interested in assuming ownership of a IIP, send a message asking to take over, addressed to both the original author and the <em>IIP editors</em>. If the original author doesn't respond to the email in a timely manner, the <em>IIP editors</em> will make a unilateral decision (it's not like such decisions can't be reversed :)).</p>
 <h3 id="iip-editors"><a class="header" href="#iip-editors">IIP Editors</a></h3>
 <div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">GitHub username</th><th style="text-align: left">Email address</th><th style="text-align: left">Affiliation</th></tr></thead><tbody>
-<tr><td style="text-align: left">Kevin Mayrhofer</td><td style="text-align: left">Dr-Electron</td><td style="text-align: left">kevin.mayrhofer@iota.org</td><td style="text-align: left">Iota Foundation</td></tr>
-<tr><td style="text-align: left">Gino Osahon</td><td style="text-align: left">Ginowine</td><td style="text-align: left">gino.osahon@iota.org</td><td style="text-align: left">Iota Foundation</td></tr>
-<tr><td style="text-align: left">Lucas Tortora</td><td style="text-align: left">lucas-tortora</td><td style="text-align: left">lucas.tortora@iota.org</td><td style="text-align: left">Iota Foundation</td></tr>
-<tr><td style="text-align: left">Salaheldin Soliman</td><td style="text-align: left">salaheldinsoliman</td><td style="text-align: left">salaheldin.soliman@iota.org</td><td style="text-align: left">Iota Foundation</td></tr>
+<tr><td style="text-align: left">Kevin Mayrhofer</td><td style="text-align: left">Dr-Electron</td><td style="text-align: left">kevin.mayrhofer@iota.org</td><td style="text-align: left">IOTA Foundation</td></tr>
+<tr><td style="text-align: left">Gino Osahon</td><td style="text-align: left">Ginowine</td><td style="text-align: left">gino.osahon@iota.org</td><td style="text-align: left">IOTA Foundation</td></tr>
+<tr><td style="text-align: left">Lucas Tortora</td><td style="text-align: left">lucas-tortora</td><td style="text-align: left">lucas.tortora@iota.org</td><td style="text-align: left">IOTA Foundation</td></tr>
+<tr><td style="text-align: left">Salaheldin Soliman</td><td style="text-align: left">salaheldinsoliman</td><td style="text-align: left">salaheldin.soliman@iota.org</td><td style="text-align: left">IOTA Foundation</td></tr>
 <tr><td style="text-align: left">Vivek Jain</td><td style="text-align: left">vivekjain23</td><td style="text-align: left">vivek.jain@iota.org</td><td style="text-align: left">IOTA Foundation</td></tr>
-<tr><td style="text-align: left">Levente Pap</td><td style="text-align: left">lzpap</td><td style="text-align: left">levente.pap@iota.org</td><td style="text-align: left">Iota Foundation</td></tr>
+<tr><td style="text-align: left">Levente Pap</td><td style="text-align: left">lzpap</td><td style="text-align: left">levente.pap@iota.org</td><td style="text-align: left">IOTA Foundation</td></tr>
 </tbody></table>
 </div>
 <h3 id="iip-editor-responsibilities"><a class="header" href="#iip-editor-responsibilities">IIP Editor Responsibilities</a></h3>
@@ -363,9 +363,9 @@ created: 2025-02-12
 <li>Send a message back to the IIP author with the next step.</li>
 </ul>
 <p>The editors don't pass judgment on IIPs. We merely do the administrative &amp; editorial part.</p>
-<h3 id="technical-committee"><a class="header" href="#technical-committee">Technical Committee</a></h3>
-<p>The <em>Technical Committee</em> consists of several core contributors of the IOTA ecosystem and core developers. Their job is to evaluate technical details of IIPs, judge their technical feasibility and safeguard the evolution of the protocol. Core improvement ideas must be carefully thought through and their benefits must outweigh their drawbacks.</p>
-<p>In order for a draft IIP to be accepted into the repo, it must be signed-off by the <em>Technical Committee</em>. It is also the committee that gives the green light for drafts to become proposed or active.</p>
+<h3 id="core-contributors"><a class="header" href="#core-contributors">Core Contributors</a></h3>
+<p><em>Core contributors</em> consists of several core developers of the IOTA ecosystem. Their job is to evaluate technical details of IIPs, judge their technical feasibility and safeguard the evolution of the protocol. Core improvement ideas must be carefully thought through and their benefits must outweigh their drawbacks.</p>
+<p>In order for a draft IIP to be accepted into the repo, it must be signed-off by <em>Core contributors</em>. It is also this group that gives the green light for drafts to become proposed or active.</p>
 <h2 id="rationale"><a class="header" href="#rationale">Rationale</a></h2>
 <p>The IIP process is intended to replace the formerly adopted Tangle Improvement Proposal (TIP) process due the underlying technological shift.</p>
 <p>TIPs refer to the previous generation of IOTA technology and hence are outdated. In order not to confuse contributors, IIP is introduced as a new process to propose, discuss and implement new ideas for the IOTA technology stack.</p>
