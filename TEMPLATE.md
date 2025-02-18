@@ -17,7 +17,7 @@ This is the suggested template for new IIPs.
 
 Note that an IIP number will be assigned by an editor. When opening a pull request to submit your IIP, please use an abbreviated title in the filename, `iip-draft_title_abbrev.md`.
 
-The title should be 44 characters or less. It should not repeat the IIP number in title, irrespective of the category.
+The title should be 44 characters or fewer. It should not repeat the IIP number in title, irrespective of the category.
 
 ## Abstract
 Abstract is a multi-sentence (short paragraph) technical summary. This should be a very terse and human-readable version of the specification section. Someone should be able to read only the abstract to get the gist of what this specification does.
@@ -26,9 +26,7 @@ Abstract is a multi-sentence (short paragraph) technical summary. This should be
 The motivation section should describe the "why" of this IIP. What problem does it solve? Why should someone want to implement this standard? What benefit does it provide to the IOTA ecosystem? What use cases does this IIP address?
 
 ## Specification
-The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in RFC 2119.
-
-The technical specification should describe the syntax and semantics of any new feature. The specification should be detailed enough to allow competing, interoperable implementations for any of the current IOTA platforms (TODO: link to wiki).
+The technical specification should provide a concise, high level design of the change or feature, without going deep into implementation details. It should also describe the syntax and semantics of any new feature.
 
 ## Rationale
 The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made. It should describe alternate designs that were considered and related work, e.g. how the feature is supported in other languages.
