@@ -21,14 +21,51 @@ allows to control the communication complexity and potentially storage complexit
 
 ## Motivation
 
-The motivation for this IIP comes from our theoretical discussion and practical observation in the Testnet around Mysticeti.
-Because of Byzantine behaviour, slow or deadlocked network connection and/or slow computational capability, some 
-validators, later called bad validators, can share its own block to only a few selected peers in time. Blocks of good validators that reference 
-blocks of bad validators can stay suspended in the block managers of validators depending on the depth of the missing 
-causal history.
+**Liveness.** Because of Byzantine behaviour, slow or deadlocked network connection and/or slow computational capability, some 
+validators, hereafter called _slow_ validators, can share its own block to only a few selected peers in time. Blocks that reference 
+blocks of slow validators can stay suspended in the block managers for a long time depending on the depth of the missing 
+causal history. In Mysticeti, the blocks of the recent DAG are fetched by explicit requesting the missing parents of a given suspended block.
+This slow synchronization of the recent DAG can trigger liveness issues in Mysticeti. Starfish allows for faster synchronization 
+of the recent DAG.
 
+**Communication complexity.** For n=3f+1, we can observe in the network with f slow validators situations when each block of a slow validator, while being disseminated to f not-slow validators, will be requested from these validators by other validators.
+This may lead to impractical quadratic communication complexity O(n^2). Starfish keeps the communication complexity linear
+for all circumstances by using Reed-Solomon codes and using shards in dissemination of other blocks.
 
-## Design / Specification
+**Storage overhead.** Now each validator store the whole transaction data associated with a block. With Starfish, we can
+store block headers with only one shard of transaction data, reducing the size of the consensus database.
+
+## Specification
+Starfish requires implementation of a new crate as it contains many new components in consensus and modifies existing modules.
+Below, we sum up the most important changes compared to the current version of Mysticeti:
+ - Block Structure: 
+   - Separation of Header and Data: Blocks are split into headers (containing metadata) and transaction data. Only headers are signed, and the block digest is calculated solely from the header to ensure compatibility.
+   - Data Commitment: Blocks include a commitment to transaction data, verified separately to ensure integrity without requiring immediate data availability.
+   - Data Acknowledgment: Once the transaction data of a block is available by a validator, it should acknowledge that in next block. 
+   - Sharding with Reed-Solomon Codes: Transaction data is encoded into shards using Reed-Solomon codes, allowing reconstruction from a subset of shards. The commitment could be a Merkle tree on the encoded shards. For own blocks, send full transaction data and shards should be disseminated together with proofs. 
+ - Encoder/Decoder: block verifier, core and data manager should be equipped by [n,f+1] Reed-Solomon encoders and decoders to a) ensure the correctness
+of the computed transaction commitment, b) be able to decode the transaction data from locally available shards, c) create 
+new blocks
+ - Block Verifier:
+   Validates incoming block headers independently. If transaction data is received, verifies its commitment against the header to ensure correctness.
+- Data Manager:
+ Handles transaction data retrieval and reconstruction. Requests missing data from the block author first (full data with sharding) or from nodes acknowledging the data (shards). Once reconstructed, data is forwarded to the DagState for storage and future serving.
+ - Block Creation:
+ Generates blocks with separate headers and transaction data. The data commitment should be computed based on the encoded transaction data by using some commitment scheme that allow for proofs, e.g. Merkle tree. Includes in a block header pending data acknowledgments.
+ - Dag State:
+   In addition, it should track for which blocks, a validator has transaction data (pending acknowledgments). Another important structure should provide information about who knows which block headers to disseminate only those block headers
+that are indeed needed.
+ - Linearizer:
+   Tracks data acknowledgments for past blocks, including only quorum-reached data in new commits. Implements lightweight garbage collection to limit traversal of the DAG.
+ - Streaming own blocks:
+   Broadcast own blocks with their transaction data and block headers potentially missing by peers. 
+ - Storage:
+   Separates storage for headers and shards and own transaction data, indexed by (Round, Author, Digest). Triggers data storage upon availability to minimize overhead.
+ - Commit Structure:
+   Includes references to headers traversed by the Linearizer for data acknowledgment collection. Lists data blocks with a quorum of acknowledgments with optional bitmaps of acknowledging nodes to optimize data retrieval.
+
+More details on the theoretical description of Starfish can be found in https://eprint.iacr.org/2025/567. The implementation details of the Starfish testbed can be found in https://github.com/iotaledger/starfish.
+
 
 ### IIP Types
 
