@@ -3,7 +3,7 @@ iip: 2
 title: Starfish Consensus Protocol
 description: A DAG-based consensus protocol improving liveness and efficiency
 author: Nikita Polianskii (@polinikita) <nikita.polianskii@iota.org>
-discussions-to: https://github.com/iotaledger/iips/discussions
+discussions-to: https://github.com/iotaledger/IIPs/discussions/10
 status: Draft
 type: Standards Track
 layer: Core
@@ -14,7 +14,9 @@ requires: None
 ## Abstract
 
 This IIP proposes Starfish, a DAG-based consensus protocol enhancing Mysticeti. Starfish decouples block headers from transaction data, enabling push-based header dissemination, and encodes transaction data into Reed-Solomon shards for efficient reconstruction. These mechanisms improve liveness, reduce communication complexity to linear, and lower storage overhead, even in Byzantine environments.
+
 ## Motivation
+
 Starfish addresses three limitations in Mysticeti:
 
 **Liveness.** Because of Byzantine behaviour, slow or deadlocked network connection and/or slow computational capability, some 
