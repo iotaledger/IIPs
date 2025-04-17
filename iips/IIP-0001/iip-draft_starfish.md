@@ -1,5 +1,5 @@
 ---
-iip: 
+iip: 2
 title: Starfish Consensus Protocol
 description: A DAG-based consensus protocol improving liveness and efficiency
 author: Nikita Polianskii (@polinikita) <nikita.polianskii@iota.org>
