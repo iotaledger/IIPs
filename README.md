@@ -36,10 +36,10 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 ![image](iips/IIP-0001/process.svg)
 
 
-| #  | Title                                                                     | Description                                                                                                                                      | Type      | Layer     | Status             | Initial Target |
-|----|---------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|-----------|-----------|--------------------|----------------|
-| 1  | [IIP Process](iips/IIP-0001/iip-0001.md)                                  | Purpose and guidelines of the contribution framework                                                                                             | Process   | -         | Active             | -              |
-
+| # | Title                                                    | Description                                                      | Type      | Layer | Status |
+|---|----------------------------------------------------------|------------------------------------------------------------------|-----------|-------|--------|
+| 1 | [IIP Process](iips/IIP-0001/iip-0001.md)                 | Purpose and guidelines of the contribution framework             | Process   | -     | Active |
+| 2 | [Starfish Consensus Protocol](iips/IIP-0002/iip-0002.md) | A DAG-based consensus protocol improving liveness and efficiency | Standards | Core  | Draft  |
 
 ## Need help?
 
