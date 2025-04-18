@@ -24,17 +24,18 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
 
-        <!-- Provide site root to javascript -->
+        <!-- Provide site root and default themes to javascript -->
         <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
@@ -44,8 +45,8 @@
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,7 +60,8 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             const html = document.documentElement;
@@ -72,8 +74,8 @@
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -109,6 +111,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
@@ -170,7 +173,7 @@
 <p>You may find more information about the IIP Process in <a href="./iips/IIP-0001/iip-0001.html">IIP-1</a>.</p>
 <h2 id="list-of-iips"><a class="header" href="#list-of-iips">List of IIPs</a></h2>
 <ul>
-<li>Last updated: 2025-02-12</li>
+<li>Last updated: 2025-04-18</li>
 <li>The <em>Status</em> of a IIP reflects its current state with respect to its progression to being supported on the IOTA Mainnet.
 <ul>
 <li><code>Draft</code> IIPs are work in progress. They may or may not have a working implementation on a testnet.</li>
@@ -182,8 +185,9 @@
 </li>
 </ul>
 <p><img src="iips/IIP-0001/process.svg" alt="image" /></p>
-<div class="table-wrapper"><table><thead><tr><th>#</th><th>Title</th><th>Description</th><th>Type</th><th>Layer</th><th>Status</th><th>Initial Target</th></tr></thead><tbody>
-<tr><td>1</td><td><a href="iips/IIP-0001/iip-0001.html">IIP Process</a></td><td>Purpose and guidelines of the contribution framework</td><td>Process</td><td>-</td><td>Active</td><td>-</td></tr>
+<div class="table-wrapper"><table><thead><tr><th>#</th><th>Title</th><th>Description</th><th>Type</th><th>Layer</th><th>Status</th></tr></thead><tbody>
+<tr><td>1</td><td><a href="iips/IIP-0001/iip-0001.html">IIP Process</a></td><td>Purpose and guidelines of the contribution framework</td><td>Process</td><td>-</td><td>Active</td></tr>
+<tr><td>2</td><td><a href="iips/IIP-0002/iip-0002.html">Starfish Consensus Protocol</a></td><td>A DAG-based consensus protocol improving liveness and efficiency</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
 </tbody></table>
 </div>
 <h2 id="need-help"><a class="header" href="#need-help">Need help?</a></h2>
