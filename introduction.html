@@ -41,6 +41,17 @@
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
@@ -118,7 +129,7 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -188,6 +199,7 @@
 <div class="table-wrapper"><table><thead><tr><th>#</th><th>Title</th><th>Description</th><th>Type</th><th>Layer</th><th>Status</th></tr></thead><tbody>
 <tr><td>1</td><td><a href="iips/IIP-0001/iip-0001.html">IIP Process</a></td><td>Purpose and guidelines of the contribution framework</td><td>Process</td><td>-</td><td>Active</td></tr>
 <tr><td>2</td><td><a href="iips/IIP-0002/iip-0002.html">Starfish Consensus Protocol</a></td><td>A DAG-based consensus protocol improving liveness and efficiency</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
+<tr><td>3</td><td><a href="iips/IIP-0003/iip-0003.html">Sequencer Improvements</a></td><td>Improved sequencing algorithm for reducing the number of transaction cancellations</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
 </tbody></table>
 </div>
 <h2 id="need-help"><a class="header" href="#need-help">Need help?</a></h2>

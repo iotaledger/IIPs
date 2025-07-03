@@ -42,6 +42,17 @@
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
@@ -119,7 +130,7 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -189,6 +200,7 @@
 <div class="table-wrapper"><table><thead><tr><th>#</th><th>Title</th><th>Description</th><th>Type</th><th>Layer</th><th>Status</th></tr></thead><tbody>
 <tr><td>1</td><td><a href="iips/IIP-0001/iip-0001.html">IIP Process</a></td><td>Purpose and guidelines of the contribution framework</td><td>Process</td><td>-</td><td>Active</td></tr>
 <tr><td>2</td><td><a href="iips/IIP-0002/iip-0002.html">Starfish Consensus Protocol</a></td><td>A DAG-based consensus protocol improving liveness and efficiency</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
+<tr><td>3</td><td><a href="iips/IIP-0003/iip-0003.html">Sequencer Improvements</a></td><td>Improved sequencing algorithm for reducing the number of transaction cancellations</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
 </tbody></table>
 </div>
 <h2 id="need-help"><a class="header" href="#need-help">Need help?</a></h2>
@@ -485,6 +497,76 @@ To ensure that the new consensus serves its purposes, there should be tests mimi
 </ul>
 <p>This draft aids consensus developers and will be refined for production.</p>
 <h2 id="copyright-1"><a class="header" href="#copyright-1">Copyright</a></h2>
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><pre>
+iip: 3
+title: Sequencer Improvements
+description: A sequencing algorithm that assigns the earliest available execution slot to transactions.
+author: Can Umut Ileri (@cuileri) and Andrew Cullen (@cyberphysic4l)
+discussions-to: https://github.com/iotaledger/IIPs/discussions/14
+status: Draft
+type: Standards Track
+layer: Core
+created: 2025-04-23
+</pre>
+<h2 id="abstract-2"><a class="header" href="#abstract-2">Abstract</a></h2>
+<p>The sequencer is a protocol component that directly follows consensus and is responsible for assigning the order of execution of transactions writing to shared objects.
+The current sequencing algorithm requires the preservation of the gas price ordering of transactions that touch <strong>any</strong> common shared object.
+This requirement is too strict and results in suboptimal use of resources.
+In this IIP, we propose an alternative algorithm that preserves gas price ordering only for transactions that touch <strong>all</strong> the same shared objects.
+With this relaxed requirement, we can allow the sequencing phase to order transactions more flexibly, enabling a better resource utilization during execution.
+It outputs a new execution order (which may differ from the gas price ordering) for transactions with shared object dependencies without implicitly binding transactions to specific processes.
+In the case of both the existing sequencer and this proposal, transactions are passed in the order provided by the sequencer to a simple scheduler module which assigns workers for the execution of each transaction and ensures that a transaction can only begin executing if all transactions touching common shared objects are finished executing.</p>
+<h2 id="motivation-2"><a class="header" href="#motivation-2">Motivation</a></h2>
+<p>To understand the motivation for the sequencer improvements proposed here, consider the following example.</p>
+<p>The consensus module produces a commit containing the following set of transactions without regard for their exact ordering within the commit. The lettered blocks within each transaction indicate that the transaction writes to that shared object. In this example, we have four shared objects, <code>a</code>, <code>b</code>, <code>c</code> and <code>d</code>.</p>
+<p><img src="iips/IIP-0003/./commit.svg" alt="image" /></p>
+<p>These transactions can then be placed in descending order of gas price where transaction number 1 pays the highest gas price.</p>
+<p><img src="iips/IIP-0003/./ordered.svg" alt="image" /></p>
+<p>Suppose, for the purpose of this example, that each transaction requires one time unit to execute, and for each commit, we want to limit the longest sequential execution to 5 time units to help the execution keep up with the rate of consensus commits.
+We can clearly see that if we executed every transaction sequentially, it would require 11 time units, so 6 of these transactions would need to be deferred.
+In fact, we can do much better than this because transactions with no shared object dependencies can be executed in parallel, but we also need to consider preserving the gas-price ordering of transactions to ensure fairness for users.</p>
+<p>The job of the sequencer is to determine the execution order of transactions with shared object dependencies given a constraint on the total expected execution time for all sequentially executed transactions within a consensus commit.
+The limit placed on expected execution time serves as a congestion control, ensuring that the execution can always keep up with the rate of consensus commits.</p>
+<h2 id="the-existing-sequencer"><a class="header" href="#the-existing-sequencer">The existing sequencer</a></h2>
+<p>The existing sequencer iterates over the transactions in decreasing gas price order and assigns a new order allowing for parallel execution of transactions when they have no shared objects in common. If a pair of transactions write to <strong>any</strong> common shared object, their gas-price ordering must be preserved in this algorithm.
+The sequencing result in this example is as follows with the existing sequencer.</p>
+<p><img src="iips/IIP-0003/./current.svg" alt="image" /></p>
+<p>The first three transactions all touch <code>a</code>, so they must be executed sequentially in their gas price order.
+Transaction 4 must be executed after transaction 3 in the current sequencer because they both touch <code>c</code>, so their gas price order must be preserved.
+It would be feasible to execute transaction 4 in parallel with transaction 1 or 2 because they do not touch any common shared objects, but this would violate the gas price ordering between 3 and 4.
+Transaction 5 is placed after 4, but transaction 6 must be deferred because the cumulative estimate execution time for sequentially executing the previous 5 transactions exceeds the maximum execution duration per commit in this example.
+Transactions 8, 9 and 11 are all able to be executed in parallel without violating the gas price ordering of any transactions that touch common shared objects, but transactions 7 and 10 must also be deferred.</p>
+<h2 id="the-proposed-algorithm"><a class="header" href="#the-proposed-algorithm">The proposed algorithm</a></h2>
+<p>In our proposal, we relax the requirement on gas price ordering so it only needs to be preserved if a transaction touches <strong>all</strong> the same shared objects.
+We assign the new transaction order one by one as before, but now we simply assign the transaction to the earliest execution start time where there is no transaction already sequenced that touches any common shared objects.
+The result for our example is illustrated below.</p>
+<p><img src="iips/IIP-0003/./improved.svg" alt="image" /></p>
+<p>The first three transactions are the same as before, but when we get to transaction 4, illustrated in orange here, we can sequence it in parallel to transaction 1 this time, placing transaction 4 in a higher position than transaction 3 because we do not need to preserve their gas price order as they do not touch an identical set of shared objects. Transactions 5 and 11 can also be sequenced in earlier slots than before this time due to the new algorithm. Additionally, transactions 6 and 10 can now be executed instead of being deferred as indicated in red.</p>
+<h2 id="specification-1"><a class="header" href="#specification-1">Specification</a></h2>
+<p>The proposed algorithm is specified in <a href="iips/IIP-0003/./ICBC_2025_Sequencing.pdf">this paper</a>. The paper also provides proofs of a gas price fairness property and of improved throughput compared with the existing algorithm.</p>
+<h2 id="backwards-compatibility-2"><a class="header" href="#backwards-compatibility-2">Backwards Compatibility</a></h2>
+<p>The proposed sequencing algorithm is not backwards compatible with the existing one, so must be implemented as a protocol upgrade with a feature flag to enable the new functionality.
+This has been done in the implementation referenced below.</p>
+<h2 id="reference-implementation-and-testing"><a class="header" href="#reference-implementation-and-testing">Reference Implementation and Testing</a></h2>
+<p>This IIP has been implemented in <a href="https://github.com/iotaledger/iota/pull/5763">this PR</a> including unit tests for the new functionality with example scenarios. Additionally, the new sequencer has been compared extensively to the old sequencer using a spammer as detailed in <a href="https://github.com/iotaledger/iota-spammer/blob/sequencing-experiments/reports/improved_sequencing.md">this report</a>.
+We present a subset of representative here to make them publicly accessible.</p>
+<h3 id="experiment-results"><a class="header" href="#experiment-results">Experiment Results</a></h3>
+<p>The proposed algorithm reduces the number of deferments at each round, which prevents transaction cancellations caused by repeated deferments during periods of congestion.
+To measure the performance of the proposed algorithm in reducing the number of cancellations, we stressed the network using a synthetic transaction set that consists of both directly and indirectly conflicting transactions.
+(An indirect conflict refers to two transactions with disjoint input objects sets that nonetheless both share at least one object with other conflicting transactions.)</p>
+<p>The figure below shows the cumulative number of cancellations over time during different trials of an experiment with 4000 transactions for both existing (canonical) and proposed (improved) algorithms. The number of cancellations was reduced by 60% in average.</p>
+<p><img src="iips/IIP-0003/./experiment_cumulative.svg" alt="image" />
+For comparison, the figure below shows the cumulative number of successfully executed transactions from the same experiment.</p>
+<p><img src="iips/IIP-0003/./experiment_cumulative_success.svg" alt="image" /></p>
+<p>Note that the above experiment exemplifies the potential benefits of the improved sequencer well because the pattern of direct and indirect conflicts show the shortcomings of the canonical sequencer.
+However, for any consensus commit, the improved sequencer will always sequence at least as many transactions as the canonical sequencer as proven in <a href="iips/IIP-0003/./ICBC_2025_Sequencing.pdf">this paper</a>.
+To further demonstrate the effectiveness of the new approach, we repeated experiments with transactions whose inputs sets are generated randomly, without controling the ratio of direct/indirect conflicts.
+We note that due to the random nature of the experiments, transactions are most likely to be in direct conflict, meaning there is less room for improvement.
+Even in this case, the number of cancellations was reduced by 7% in average.
+The figure below summarizes the comparison between the two algorithms in terms of the average number of cancellations for varying number of objects per transaction.</p>
+<p><img src="iips/IIP-0003/./experiment_boxplot.svg" alt="image" /></p>
+<h2 id="copyright-2"><a class="header" href="#copyright-2">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 
                     </main>
