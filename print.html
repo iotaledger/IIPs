@@ -37,6 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
@@ -93,10 +94,13 @@
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
+                sidebar_toggle.checked = false;
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
@@ -147,7 +151,12 @@
 
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -185,7 +194,7 @@
 <p>You may find more information about the IIP Process in <a href="./iips/IIP-0001/iip-0001.html">IIP-1</a>.</p>
 <h2 id="list-of-iips"><a class="header" href="#list-of-iips">List of IIPs</a></h2>
 <ul>
-<li>Last updated: 2025-04-18</li>
+<li>Last updated: 2025-07-23</li>
 <li>The <em>Status</em> of a IIP reflects its current state with respect to its progression to being supported on the IOTA Mainnet.
 <ul>
 <li><code>Draft</code> IIPs are work in progress. They may or may not have a working implementation on a testnet.</li>
@@ -201,6 +210,7 @@
 <tr><td>1</td><td><a href="iips/IIP-0001/iip-0001.html">IIP Process</a></td><td>Purpose and guidelines of the contribution framework</td><td>Process</td><td>-</td><td>Active</td></tr>
 <tr><td>2</td><td><a href="iips/IIP-0002/iip-0002.html">Starfish Consensus Protocol</a></td><td>A DAG-based consensus protocol improving liveness and efficiency</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
 <tr><td>3</td><td><a href="iips/IIP-0003/iip-0003.html">Sequencer Improvements</a></td><td>Improved sequencing algorithm for reducing the number of transaction cancellations</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
+<tr><td>5</td><td><a href="iips/IIP-0003/iip-0003.html">Move View Functions</a></td><td>A standardized interface for application-specific queries to on-chain state</td><td>Standards</td><td>Interface</td><td>Draft</td></tr>
 </tbody></table>
 </div>
 <h2 id="need-help"><a class="header" href="#need-help">Need help?</a></h2>
@@ -568,6 +578,126 @@ The figure below summarizes the comparison between the two algorithms in terms o
 <p><img src="iips/IIP-0003/./experiment_boxplot.svg" alt="image" /></p>
 <h2 id="copyright-2"><a class="header" href="#copyright-2">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><pre>
+iip: 5
+title: Move View Functions
+description: A standardized interface for application-specific queries to on-chain state
+author: Levente Pap (@lzpap) <levente.pap@iota.org@iota.org>, Mirko Zichichi (@miker83z) <mirko.zichichi@iota.org@iota.org>
+discussions-to: https://github.com/iotaledger/IIPs/discussions/18
+status: Draft
+type: Standards Track
+layer: Interface
+created: 2025-07-22
+requires: None
+</pre>
+<h2 id="abstract-3"><a class="header" href="#abstract-3">Abstract</a></h2>
+<p>This proposal introduces a standardized interface for enabling ergonomic and application-specific queries to on-chain state. Move view functions are developer defined on-chain read API that can be easily queried off-chain without requiring transaction signing or state mutation (based on the Ethereum's <a href="https://docs.soliditylang.org/en/latest/contracts.html#view-functions">Solidity view function</a> feature concept). The proposal is made to improve developer productivity and simplifying access to on-chain data through RPC, CLI, and SDK interfaces.</p>
+<h2 id="motivation-3"><a class="header" href="#motivation-3">Motivation</a></h2>
+<p>Currently, developers must write a significant amount of custom client-side logic to inspect on-chain data. This often involves multiple layers of fetching object IDs, deserializing raw bytes, and navigating dynamic fields just to reach an information stored within a Move object. While tools like <a href="https://docs.iota.org/iota-api-ref#iota_devinspecttransactionblock"><code>dev-inspect</code></a> or <a href="https://docs.iota.org/iota-api-ref#iota_dryruntransactionblock"><code>dry-run</code></a> exist, they suffer from limitations such as complexity in usage and difficulty in decoding return values.</p>
+<p>This proposal aims to address the following developer pain points:</p>
+<ul>
+<li>Being forced to understand the logic of a Move data structure and then how to map that to RPC calls in order to fetch a piece of data, e.g., getting nested object ids.</li>
+<li>Some data structures cannot easily be accessed through current RPC calls because of the way they use dynamic fields, e.g., Bag and Table data structures.</li>
+<li>Using <code>dev-inspect</code> can become complicated because the function return values the developer gets are <a href="https://docs.iota.org/ts-sdk/bcs">BCS</a> bytes and then these need to be parsed, assuming the return type is known.</li>
+</ul>
+<h2 id="specification-2"><a class="header" href="#specification-2">Specification</a></h2>
+<p>This proposal defines a developer interface to support Move View Functions. The following is a list of specifications related to its implementation:</p>
+<ul>
+<li>A View Function is a function in a Move module with a return type that does not alter the state of the ledger, i.e., when using the Move View Function interface no transactions are submitted to the network for their inclusion into the ledger.</li>
+<li>Move View Functions are callable via at least one new RPC method that supports type parameters and function arguments.</li>
+<li>The use of such interface MUST NOT require signature checks, i.e., invoking a Move View Function that takes as input an Owned Object MUST be made possible to anyone and not only to the owner of such object.</li>
+<li>The use of such interface MUST NOT require the usage of a gas coin; spam attacks SHOULD be dealt with at the RPC level and not at the execution level; this is because the Move View Function does not alter the state of the ledger and thus cannot deduce gas.</li>
+<li>Returned results MUST be resolved, i.e., the Move types deserialized, and then formatted in JSON.</li>
+<li>Must be integrated into the SDKs and the CLI.</li>
+</ul>
+<p>The following specifies the proposed developer interfaces.</p>
+<h3 id="iota_view-json-rpc-method"><a class="header" href="#iota_view-json-rpc-method">iota_view JSON-RPC method</a></h3>
+<p>Executes a Move View Function. Which allows for nearly any Move call for a function with a return type and with any arguments. The function's result values are provided and decoded using the appropriate Move type.</p>
+<h4 id="parameters"><a class="header" href="#parameters">Parameters</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Name<Type></th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td>function_name <string></td><td>Yes</td><td>The Move function fully qualified name as <code>&lt;package_id&gt;::&lt;module_name&gt;::&lt;function_name&gt;</code>, e.g. <code>0x3::iota_system::get_total_iota_supply</code></td></tr>
+<tr><td>type_args &lt;[TypeTag]&gt;</td><td>Yes</td><td>The type arguments of the Move function</td></tr>
+<tr><td>arguments &lt;[IotaJsonValue]&gt;</td><td>Yes</td><td>The arguments to be passed into the Move function, in IotaJson format</td></tr>
+</tbody></table>
+</div>
+<h4 id="result"><a class="header" href="#result">Result</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Name<Type></th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td>error &lt;[string, null]&gt;</td><td>No</td><td>Execution error from executing the view function</td></tr>
+<tr><td>results &lt;[IotaMoveViewResult, null]&gt;</td><td>No</td><td>Execution results (including return values) from executing the view function</td></tr>
+</tbody></table>
+</div>
+<h4 id="example"><a class="header" href="#example">Example</a></h4>
+<p>The following example can be taken as a reference for the API model.</p>
+<h5 id="request"><a class="header" href="#request">Request:</a></h5>
+<pre><code class="language-json">{
+  "method": "iota_view",
+  "params": {
+    "functionName": "0x5e7a300e640f645a4030aeb507c7be16909e6fa9711e7ca2d4397bbd967d5c50::auction::get_auction_metadata",
+    "typeArgs": [],
+    "arguments": [
+      "auc.iota",
+      "0x31deb8cbd320867089d52c37fed2d443520aac0fc5a957de1f64f9135b83f42b"
+    ]
+  }
+}
+</code></pre>
+<h5 id="response"><a class="header" href="#response">Response:</a></h5>
+<pre><code class="language-json">{
+  "results": [
+    "start": "447575403174913",
+    "end": "447576324774913",
+    "address": "0xc9f649324694c0c18c6278c3a81945fb3ef0c9b91f21dd5b6a4364447ee348df",
+    "value": "500000000"
+  ]
+}
+</code></pre>
+<h3 id="view-graphql-rpc-query"><a class="header" href="#view-graphql-rpc-query">view GraphQL RPC query</a></h3>
+<p>A new GraphQL read query is added to the IOTA GraphQL RPC interface with the following structure:</p>
+<pre><code class="language-graphql">view(
+  functionName: String!
+  typeArguments: [String]
+  arguments: [String]
+): ViewResults!
+</code></pre>
+<h4 id="example-1"><a class="header" href="#example-1">Example</a></h4>
+<p>Query:</p>
+<pre><code class="language-graphql">view(
+  functionName: "0x5e7a300e640f645a4030aeb507c7be16909e6fa9711e7ca2d4397bbd967d5c50::auction::get_auction_metadata"
+  typeArgs: []
+  arguments: [ "auc.iota", "0x31deb8cbd320867089d52c37fed2d443520aac0fc5a957de1f64f9135b83f42b"]
+) {
+  errors
+  results {
+    json
+  }
+}
+</code></pre>
+<p>Response:</p>
+<pre><code class="language-graphql">{
+  "data": {
+    "view": {
+      "results": {
+        "start": "447575403174913",
+        "end": "447576324774913",
+        "address": "0xc9f649324694c0c18c6278c3a81945fb3ef0c9b91f21dd5b6a4364447ee348df",
+        "value": "500000000"
+      }
+    }
+  }
+}
+</code></pre>
+<h2 id="rationale-2"><a class="header" href="#rationale-2">Rationale</a></h2>
+<p>The implementation of the developer interface specified above entails no required changes to the Move language. Such an interface can be implemented as a JSON or GraphQL RPC backend that relies on the existence of a <code>dev-inspect</code> gRPC call to an IOTA full node.</p>
+<p>This means that <code>function_name</code> allows to fetch a Move View Function from a bytecode stored in an on-chain package. Then the Move type layout of the function parameters and return values can be determined. Finally, a <code>dev-inspect</code> Move Call can be constructed and executed using the <code>type_args</code> and <code>arguments</code> parameters and then its return values can be resolved.</p>
+<p>However, a future IIP could specify how to make the on-chain read API explicit (e.g., adding a view function annotation to the Move language such as in the <a href="https://move-developers-dao.gitbook.io/aptos-move-by-example/advanced-concepts/view-functions">Aptos view function</a>)).</p>
+<h2 id="backwards-compatibility-3"><a class="header" href="#backwards-compatibility-3">Backwards Compatibility</a></h2>
+<p>This proposal is fully backwards compatible. In that case of a combination of this IIP with another IIP specifying an explicit on-chain read API, the developer interface proposed in here could be limited only to that explicit API.</p>
+<h2 id="test-cases-1"><a class="header" href="#test-cases-1">Test Cases</a></h2>
+<p>The new developer interface will need to be extensively tested.</p>
+<h2 id="reference-implementation-1"><a class="header" href="#reference-implementation-1">Reference Implementation</a></h2>
+<p>There is no reference implementation at the time of writing this IIP.</p>
+<h2 id="copyright-3"><a class="header" href="#copyright-3">Copyright</a></h2>
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 
                     </main>
 
@@ -609,6 +739,7 @@ The figure below summarizes the comparison between the two algorithms in terms o
             window.setTimeout(window.print, 100);
         });
         </script>
+
 
     </div>
     </body>
