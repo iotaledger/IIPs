@@ -25,7 +25,7 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 
 ## List of IIPs
 
- - Last updated: 2025-04-18
+ - Last updated: 2025-07-23
  - The _Status_ of a IIP reflects its current state with respect to its progression to being supported on the IOTA Mainnet.
    - `Draft` IIPs are work in progress. They may or may not have a working implementation on a testnet.
    - `Proposed` IIPs are demonstrated to have a working implementation on the IOTA Devnet or Testnet.
@@ -35,12 +35,13 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 
 ![image](iips/IIP-0001/process.svg)
 
+| #  | Title                                                    | Description                                                                                                   | Type      | Layer     | Status |
+|----|----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|-----------|-----------|--------|
+| 1  | [IIP Process](iips/IIP-0001/iip-0001.md)                 | Purpose and guidelines of the contribution framework                                                          | Process   | -         | Active |
+| 2  | [Starfish Consensus Protocol](iips/IIP-0002/iip-0002.md) | A DAG-based consensus protocol improving liveness and efficiency                                              | Standards | Core      | Draft  |
+| 3  | [Sequencer Improvements](iips/IIP-0003/iip-0003.md)      | Improved sequencing algorithm for reducing the number of transaction cancellations                            | Standards | Core      | Draft  |
+| 5  | [Move View Functions](iips/IIP-0003/iip-0003.md)         | A standardized interface for application-specific queries to on-chain state                                   | Standards | Interface | Draft  |
 
-| # | Title                                                    | Description                                                      | Type      | Layer | Status |
-|---|----------------------------------------------------------|------------------------------------------------------------------|-----------|-------|--------|
-| 1 | [IIP Process](iips/IIP-0001/iip-0001.md)                 | Purpose and guidelines of the contribution framework             | Process   | -     | Active |
-| 2 | [Starfish Consensus Protocol](iips/IIP-0002/iip-0002.md) | A DAG-based consensus protocol improving liveness and efficiency | Standards | Core  | Draft  |
-| 3 | [Sequencer Improvements](iips/IIP-0003/iip-0003.md) | Improved sequencing algorithm for reducing the number of transaction cancellations | Standards | Core  | Draft  |
 
 ## Need help?
 
