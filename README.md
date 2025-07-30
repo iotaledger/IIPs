@@ -40,7 +40,7 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 | 1  | [IIP Process](iips/IIP-0001/iip-0001.md)                 | Purpose and guidelines of the contribution framework                                                          | Process   | -         | Active |
 | 2  | [Starfish Consensus Protocol](iips/IIP-0002/iip-0002.md) | A DAG-based consensus protocol improving liveness and efficiency                                              | Standards | Core      | Draft  |
 | 3  | [Sequencer Improvements](iips/IIP-0003/iip-0003.md)      | Improved sequencing algorithm for reducing the number of transaction cancellations                            | Standards | Core      | Draft  |
-| 5  | [Move View Functions](iips/IIP-0003/iip-0003.md)         | A standardized interface for application-specific queries to on-chain state                                   | Standards | Interface | Draft  |
+| 5  | [Move View Functions](iips/IIP-0005/iip-0005.md)         | A standardized interface for application-specific queries to on-chain state                                   | Standards | Interface | Draft  |
 
 
 ## Need help?
