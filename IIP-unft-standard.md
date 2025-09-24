@@ -1,13 +1,13 @@
 ---
-iip: <to be assigned>
+iip: 6
 title: Unified NFT Collection Standard
 description: Defines a reusable Move module for initializing and operating NFT collections on Iota with pausable supply, capability-based access control, and optional max-supply limits.
 author: fabw222
-discussions-to: https://github.com/iotaledger/iips/issues
+discussions-to: https://github.com/iotaledger/IIPs/pull/24
 status: Draft
 type: Standards Track
 layer: Interface
-created: 2024-05-27
+created: 2025-09-22
 requires:
 replaces:
 superseded-by:
