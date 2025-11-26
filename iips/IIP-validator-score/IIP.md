@@ -1,14 +1,14 @@
 ---
-iip: ?
+iip: 
 title: Validator Scoring Mechanism
 description: An automated and standardized system for monitoring validator behavior and scores
 author: Olivia Saa (@oliviasaa) <olivia.saa@iota.org>
-discussions-to: ?
+discussions-to: 
 status: Draft
-type: ?
-layer: ?
-created: ?
-requires: ?
+type: 
+layer: 
+created: 
+requires: 
 ---
 
 # Motivation
