@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>IIP-2 Starfish Consensus Protocol - The Iota Improvement Proposal (IIP) Book</title>
+        <title>IIP-7 Validator Scoring Mechanism - The Iota Improvement Proposal (IIP) Book</title>
 
 
         <!-- Custom HTML head -->
@@ -175,117 +175,53 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <pre>
-iip: 2
-title: Starfish Consensus Protocol
-description: A DAG-based consensus protocol improving liveness and efficiency
-author: Nikita Polianskii (@polinikita) <nikita.polianskii@iota.org>
-discussions-to: https://github.com/iotaledger/IIPs/discussions/10
+iip: 7
+title: Validator Scoring Mechanism
+description: An automated and standardized system for monitoring validator behavior and scores
+author: Olivia Saa (@oliviasaa) <olivia.saa@iota.org>, Andrew Cullen (@cyberphysic4l) <andrew.cullen@iota.org>
+discussions-to: https://github.com/iotaledger/IIPs/discussions/21
 status: Draft
 type: Standards Track
 layer: Core
-created: 2025-04-16
+created: 2026-01-05
 requires: None
 
-<h2 id="abstract"><a class="header" href="#abstract">Abstract</a></h2>
-<p>This IIP proposes Starfish, a DAG-based consensus protocol enhancing Mysticeti. Starfish decouples block headers from transaction data, enabling push-based header dissemination, and encodes transaction data into Reed-Solomon shards for efficient reconstruction. These mechanisms improve liveness, reduce communication complexity to linear, and lower storage overhead, even in Byzantine environments.</p>
-<h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
-<p>Starfish addresses three limitations in Mysticeti:</p>
-<p><strong>Liveness.</strong> Because of Byzantine behaviour, slow or deadlocked network connection and/or slow computational capability, some
-validators, hereafter called <em>slow</em> validators, can share its own block to only a few selected peers in time. Blocks that reference
-blocks of slow validators can stay suspended in the block managers for a long time depending on the depth of the missing
-causal history. In Mysticeti, the blocks of the recent DAG are fetched by explicit requesting the missing parents of a given suspended block.
-This slow synchronization of the recent DAG can trigger liveness issues in Mysticeti. Starfish allows for faster synchronization
-of the recent DAG.</p>
-<p><strong>Communication complexity.</strong> For n=3f+1, we can observe in the network with f slow validators situations when each block of a slow validator, while being disseminated to f not-slow validators, will be requested from these validators by other validators.
-This may lead to impractical quadratic communication complexity O(n^2). Starfish keeps the communication complexity linear
-for all circumstances by using Reed-Solomon codes and using shards in dissemination of other blocks.</p>
-<p><strong>Storage overhead.</strong> Now each validator store the whole transaction data associated with a block. With Starfish, we can
-store block headers with only one shard of transaction data, reducing the size of the consensus database.</p>
-<h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
-<p>Starfish requires implementation of a new crate as it contains many new components in consensus and modifies existing modules.
-Below, we sum up the most important changes compared to the current version of Mysticeti:</p>
+<h1 id="motivation"><a class="header" href="#motivation">Motivation</a></h1>
+<p>Validators are the backbone of the IOTA network. The performance of each validator directly influences the network’s overall efficiency and usability. Therefore, it is essential to have a reliable automated system for monitoring their behavior and performance.</p>
+<p>Currently, a number of metrics are tracked for all validators which allows manual identification of performance issues, but the only mechanism for penalizing underperforming validators is a manual reporting system. This system requires a quorum of validators to explicitly report a misbehaving peer in order to reduce their rewards. Such an approach is impractical, as it demands continuous manual monitoring, which is an unreasonable burden for most operators. Moreover, no standard criteria exist to guide reporting decisions, resulting in inconsistent and arbitrary thresholds set independently by each validator.</p>
+<p>We propose an <strong>automated and standardized system</strong> for monitoring validator behavior, culminating in a commonly agreed score that reflects each validator’s performance during an epoch. These scores could subsequently be used to directly modify the rewards distributed at the epoch’s end, but the details of reward adjustment are outside the scope of this improvement proposal.</p>
+<h1 id="specification"><a class="header" href="#specification">Specification</a></h1>
+<h2 id="performance-metrics"><a class="header" href="#performance-metrics">Performance Metrics</a></h2>
+<p>Each validator will monitor its peers throughout an epoch, collecting performance metrics for every other validator. Regardless of the exact set of metrics used, they are divided into two categories: <strong>provable</strong> and <strong>unprovable</strong> metrics:</p>
 <ul>
-<li>Block Structure:
-<ul>
-<li>Separation of Header and Data: Blocks are split into headers (containing metadata) and body optionally containing transaction data or shard. Only headers are signed, and the block digest is calculated solely from the header.</li>
-<li>Data Commitment: Blocks include a Merkle root commitment to encoded transaction data.</li>
-<li>Data Acknowledgment: Once the transaction data of a block is available by a validator, it should acknowledge that in next block.</li>
-<li>Sharding with Reed-Solomon Codes: Transaction data is encoded into shards using Reed-Solomon codes, allowing reconstruction from a subset of shards.
-The commitment could be a Merkle tree on the encoded shards. For own blocks, send full transaction data; for blocks of other validators, send shards together with proofs.</li>
+<li><strong>Unprovable metrics</strong>: These represent misbehaviours for which a validator cannot produce a proof. Examples include malformed blocks or the dissemination of invalid blocks. Validators will collect and disseminate counts for those unprovable metrics.</li>
+<li><strong>Provable metrics</strong>: These include signed but invalid blocks and equivocations. Validators should produce <em>proofs</em> of these behaviours throughout the epoch and disseminate them.</li>
 </ul>
-</li>
-<li>Encoder/Decoder: block verifier, core and data manager should be equipped by [n,f+1] Reed-Solomon encoders and decoders to a) ensure the correctness
-of the computed transaction commitment, b) be able to decode the transaction data from locally available shards, c) create
-new blocks</li>
-<li>Block Verifier:
-Validates incoming block headers independently. If transaction data is received, verifies its commitment against the header to ensure correctness.</li>
-<li>Data Manager:
-Handles transaction data retrieval and reconstruction. Requests missing data from the block author first (full data with sharding) or from nodes acknowledging the data (shards). Once reconstructed, data is forwarded to the DagState for storage and future serving.</li>
-<li>Block Creation:
-Generates blocks with separate headers and transaction data. The data commitment should be computed based on the encoded transaction data by using some commitment scheme that allow for proofs, e.g. Merkle tree. Includes in a block header pending data acknowledgments.</li>
-<li>Dag State:
-In addition, it should track for which blocks, a validator has transaction data (pending acknowledgments). Another important structure should provide information about who knows which block headers to disseminate only those block headers
-that are indeed needed.</li>
-<li>Linearizer:
-Tracks data acknowledgments for past blocks, including only quorum-acknowledged data in new commits.</li>
-<li>Streaming own blocks:
-Broadcast own blocks with their transaction data and block headers potentially missing by peers.</li>
-<li>Storage:
-Separates storage for headers and shards and own transaction data. Triggers data storage upon availability to minimize overhead.</li>
-<li>Commit Structure:
-Includes references to headers traversed by the Linearizer for data acknowledgment collection. Lists data blocks with a quorum of acknowledgments with optional bitmaps of acknowledging nodes to optimize data retrieval.</li>
-</ul>
-<p>Starfish can be enabled via protocol parameters.</p>
-<p>For theoretical details, see <a href="https://eprint.iacr.org/2025/567">eprint.iacr.org/2025/567</a>.</p>
-<h2 id="rationale"><a class="header" href="#rationale">Rationale</a></h2>
-<p>Starfish’s design is driven by the need to enhance Mysticeti’s performance in bad network conditions and/or adversarial environment. Key decisions include:</p>
-<ul>
-<li><strong>Header-Data Decoupling</strong>: Since the constructed DAG in Mysticeti is uncertified, the block propogation is one of the key issues. We decouple the header from data in the block structure to ensure that we can push all the required block headers. Only block headers are needed for driving the consensus. The transaction data can be retrieved once sequenced.</li>
-<li><strong>Data Acknowledgments</strong>: Since we decouple headers from data, we can’t simply sequence the data associated with a block by a vanilla Mysticeti commit rule as it might be unavailable by a majority of the network. Thereby, one needs to include in block headers acknowledgments about transaction data availability for past blocks. In addition, for sequencing transactions one needs to get a quorum of acknowledgments.</li>
-<li><strong>Reed-Solomon Sharding</strong>: Chosen for its ability to reconstruct data from any f+1 shards, ensuring linear communication complexity. Reed-Solomon codes are optimal in terms of recoverability and this is a primary reason why we stick with them. In addition, there are libraries (e.g. https://crates.io/crates/reed-solomon-simd) that are very CPU efficient and consume little memory.</li>
-<li><strong>Merkle Tree Commitments</strong>: Preferred for their simple proof generation, enabling shard verification without full data.</li>
-<li><strong>Data Manager</strong>: To ensure live consensus decisions, it is enough to have available all block headers in the causal history of blocks. Data manager is needed to fetch potentially missing transaction data from peers once it is sequenced and available to a quorum of the network.</li>
-</ul>
-<h2 id="backwards-compatibility"><a class="header" href="#backwards-compatibility">Backwards Compatibility</a></h2>
-<p>Starfish introduces backwards incompatibilities with Mysticeti consensus crate:</p>
-<ul>
-<li><strong>Block Structure</strong>: The new header-data split and sharding are incompatible with Mysticeti’s monolithic blocks.</li>
-<li><strong>Storage</strong>: Mysticeti’s full-data storage is replaced by header-shard storage. This storage is not replacable across validators.</li>
-<li><strong>Protocol Logic</strong>: Components like block verifier and linearizer require updates, breaking compatibility with Mysticeti’s logic.</li>
-</ul>
-<p><strong>Mitigation</strong>:</p>
-<ul>
-<li>Use crate <code>iotaledger/iota/crates/starfish</code> and enable Starfish with protocol parameters.</li>
-<li>Test compatibility in a public testnet to ensure node upgrades are seamless.</li>
-<li>Remove <code>iotaledger/iota/consensus</code> at a later point</li>
-</ul>
-<h2 id="test-cases"><a class="header" href="#test-cases">Test Cases</a></h2>
-<p>The new consensus crate will need to be extensively tested. In particular, all exising modules, e.g. block verifier, will require modifications in existing tests.
-All new modules (e.g. encoder/decoder) will require testing of typical possible scenarios.
-To ensure that the new consensus serves its purposes, there should be tests mimicking slow validators that fail to properly disseminate their blocks and this behaviour should not affect the liveness of the consensus.</p>
-<h2 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h2>
-<p>A prototype implementation is available at <a href="https://github.com/iotaledger/starfish">github.com/iotaledger/starfish</a>. It includes:</p>
-<ul>
-<li>A new crate with core Starfish-specific components (tracking who knows which block headers, encoding/decoding, data fetcher, Starfish linearizer sequencer, etc.).</li>
-<li>Modified Mysticeti modules (Block store, Linearizer, Block Verifier).</li>
-<li>Simulation scripts to test latency, throughput and bandwidth efficiency locally and in a geo-distributed network.</li>
-</ul>
-<p>This draft aids consensus developers and will be refined for production.</p>
-<h2 id="copyright"><a class="header" href="#copyright">Copyright</a></h2>
-<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
-</nikita.polianskii@iota.org></pre>
+<p>We propose to introduce a new <code>ConsensusTransactionKind</code> named <code>MisbehaviorReport</code> specifically for the propagation of both proofs of misbehaviors and the unprovable counts related to metrics collected throughout the epoch. Whenever a block containing a transaction of this type is committed, validators update their counts for provable misbehaviours and also store the sender’s view of the unprovable metrics. This type of transaction should be sent with a reasonable periodicity, so proofs don’t accumulate too much, but at the same time, without taking unnecessary block space. We propose to follow the same periodicity of the checkpoint creation.</p>
+<h2 id="aggregating-metrics-and-calculating-scores"><a class="header" href="#aggregating-metrics-and-calculating-scores">Aggregating Metrics and Calculating Scores</a></h2>
+<p>At the end of each epoch, validators should aggregate the different perceptions of the committee about all unprovable metrics in a deterministic way. With this aggregation and the provable counts, they calculate a score for each validator.</p>
+<p>Scores can be updated during the epoch according to a partial count of the validators’ misbehaviours for monitoring purposes. Furthermore, metric counts and the score itself are used by the protocol at the epoch end to adjust rewards. Thus we calculate scores also with the same periodicity as checkpoint creation.</p>
+<p>When the very last checkpoint of the epoch is created, all validators share the same view of all <code>MisbehaviorReport</code> transactions from the epoch so a validator can safely and deterministically calculate a global score from the proofs and counts therein. We do not prescribe any specific form to the scoring function in this improvement proposal other than being a weighted combination of each of the metrics included in the <code>MisbehaviorReport</code> transactions.</p>
+<h1 id="rationale"><a class="header" href="#rationale">Rationale</a></h1>
+<h2 id="performance-metrics-1"><a class="header" href="#performance-metrics-1">Performance Metrics</a></h2>
+<p>The categorization of metrics as provable or unprovable allows them to be treated differently by applying different weights to these behaviors in the scoring function. Unprovable metrics are highly gameable, and although we can reduce the impact of innaccurate reporting through aggregation of scores, unprovable metrics should not lead to severe penalties. Provable metrics, on the other hand, offer a reliable measurement of specific aspects of validator performance and potential malicious behaviour, and can therefore be weighted more heavily in a scoring function to provide stronger incentives against these misbehaviors.</p>
+<p>The mechanisms for sharing metrics also differs between provable and unprovable misbehaviors. Unprovable metrics are entirely local to each validator, so counts of each misbehavior must be explicitly shared by validators and agreed upon through the consensus mechanism. Conversely, when using proofs for misbehaviors embedded in blocks, validators already have a common view of all provable metrics. Thus, there is no need to explicitly report any count or score related to provable metrics at the epoch end.</p>
+<h2 id="aggregating-metrics-and-calculating-scores-1"><a class="header" href="#aggregating-metrics-and-calculating-scores-1">Aggregating Metrics and Calculating Scores</a></h2>
+<p>The rationale for aggregating metrics and calculating scores during checkpoint creation is that all scores calculated use globally agreed values. Furthermore, this timing of score calculation also coincides with the epoch change mechanism which calculates critical information for advancing to the next epoch. By calculating scores each checkpoint, we ensure all validators have the same scores calculated at the moment of epoch change which ensures scores can be used to modify epoch rewards as part of future protocol improvements.</p>
+<h1 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h1>
+<p>An initial set of metrics has already been implemented in the iota repository, along with a simple scoring function that serves as a placeholder for a more complete version. This reference implementation is available in the (already merged) <a href="https://github.com/iotaledger/iota/pull/7604">PR#7604</a> and <a href="https://github.com/iotaledger/iota/pull/7921">PR#7921</a> The remaining components required to achieve consensus on an aggregated score are implementated in this <a href="https://github.com/iotaledger/iota/pull/8521">PR#8521</a>. An example of a scoring function can also be seen in this latter PR.</p>
+<h1 id="backwards-compatibility"><a class="header" href="#backwards-compatibility">Backwards Compatibility</a></h1>
+<p>The introduction of a new type of consensus message is not backward compatible and must be implemented as a protocol upgrade enabling the new functionality. All other changes are either local to the node (as storing and counting metrics). Those local changes should not cause any node behaviour or agreement problems.</p>
+</andrew.cullen@iota.org></olivia.saa@iota.org></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../iips/IIP-0001/iip-0001.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../iips/IIP-0005/iip-0005.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../iips/IIP-0003/iip-0003.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -293,13 +229,10 @@ To ensure that the new consensus serves its purposes, there should be tests mimi
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../iips/IIP-0001/iip-0001.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../iips/IIP-0005/iip-0005.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../iips/IIP-0003/iip-0003.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
-                    </a>
             </nav>
 
         </div>
