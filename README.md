@@ -25,7 +25,7 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 
 ## List of IIPs
 
- - Last updated: 2025-08-24
+ - Last updated: 2026-01-05
  - The _Status_ of a IIP reflects its current state with respect to its progression to being supported on the IOTA Mainnet.
    - `Draft` IIPs are work in progress. They may or may not have a working implementation on a testnet.
    - `Proposed` IIPs are demonstrated to have a working implementation on the IOTA Devnet or Testnet.
