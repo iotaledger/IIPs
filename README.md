@@ -42,6 +42,7 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 | 3  | [Sequencer Improvements](iips/IIP-0003/iip-0003.md)      | Improved sequencing algorithm for reducing the number of transaction cancellations | Standards | Core      | Active |
 | 5  | [Move View Functions](iips/IIP-0005/iip-0005.md)         | A standardized interface for application-specific queries to on-chain state        | Standards | Interface | Draft  |
 | 7  | [Validator Scoring Mechanism](iips/IIP-0007/IIP-0007.md) | An automated and standardized system for monitoring validator behavior and scores  | Standards | Core      | Draft  |
+| 8  | [Dynamic Minimum Commission based on the Validator's Voting Power per Epoch](iips/IIP-0008/IIP-0008.md) | A dynamic minimum validator commission rate set to the validator's voting power percentage to prevent stake hoarding and promote decentralization  | Standards | Core      | Draft  |
 
 
 ## Need help?
