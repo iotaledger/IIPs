@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-213ee280.js";
+            window.path_to_searchindex_js = "searchindex-4ed1e034.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-c8a193b0.js"></script>
+        <script src="toc-19486074.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -216,6 +216,7 @@
 <tr><td>3</td><td><a href="#iip-3-sequencer-improvements">Sequencer Improvements</a></td><td>Improved sequencing algorithm for reducing the number of transaction cancellations</td><td>Standards</td><td>Core</td><td>Active</td></tr>
 <tr><td>5</td><td><a href="#iip-5-move-view-functions">Move View Functions</a></td><td>A standardized interface for application-specific queries to on-chain state</td><td>Standards</td><td>Interface</td><td>Draft</td></tr>
 <tr><td>7</td><td><a href="#motivation-4">Validator Scoring Mechanism</a></td><td>An automated and standardized system for monitoring validator behavior and scores</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
+<tr><td>8</td><td><a href="#iip-8-dynamic-minimum-commission-based-on-the-validators-voting-power-per-epoch">Dynamic Minimum Commission based on the Validator’s Voting Power per Epoch</a></td><td>A dynamic minimum validator commission rate set to the validator’s voting power percentage to prevent stake hoarding and promote decentralization</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
 </tbody>
 </table>
 </div>
@@ -792,6 +793,67 @@ requires: None
 <h1 id="backwards-compatibility-4"><a class="header" href="#backwards-compatibility-4">Backwards Compatibility</a></h1>
 <p>The introduction of a new type of consensus message is not backward compatible and must be implemented as a protocol upgrade enabling the new functionality. All other changes are either local to the node (as storing and counting metrics). Those local changes should not cause any node behaviour or agreement problems.</p>
 </andrew.cullen@iota.org></olivia.saa@iota.org></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="iip-8-dynamic-minimum-commission-based-on-the-validators-voting-power-per-epoch"><a href="#iip-8-dynamic-minimum-commission-based-on-the-validators-voting-power-per-epoch" class="header">IIP-8 Dynamic Minimum Commission based on the Validator's Voting Power per Epoch</a></h1>
+<pre>
+iip: 8
+title: Dynamic Minimum Commission based on the Validator's Voting Power per Epoch
+description: A dynamic minimum validator commission rate set to the validator's voting power percentage to prevent stake hoarding and promote decentralization.
+author: DLT.GREEN (@dlt_green)
+discussions-to: https://github.com/iotaledger/IIPs/discussions/29
+status: Draft
+type: Standards Track
+layer: Core
+created: 2026-01-16
+</pre>
+
+<h2 id="abstract-4"><a class="header" href="#abstract-4">Abstract</a></h2>
+<p>This IIP introduces a dynamic minimum validator commission rate that is automatically set to the validator’s effective voting power percentage (VP%) at the start of each epoch. Implemented as a simple <code>max(validator_set_commission, VP%)</code> enforcement, it prevents large validators from using persistently low or zero commissions to hoard stake, thereby reducing centralization risks and improving the sustainability and competitiveness of smaller validators.</p>
+<p>Due to the existing protocol cap on individual validator voting power at 10%, the enforced minimum commission will never exceed 10%.</p>
+<h2 id="motivation-5"><a class="header" href="#motivation-5">Motivation</a></h2>
+<p>In the current IOTA staking system, validators are free to set any commission rate, including 0%. Large validators (or those with significant self-stake) can leverage low commissions to attract a disproportionate share of delegations, leading to concentration of voting power. This creates a feedback loop where dominant validators become increasingly attractive to delegators seeking maximum rewards, marginalizing mid-sized and smaller validators and threatening long-term network decentralization.</p>
+<p>The protocol already caps individual validator voting power at 10% (with excess stake redistributed to promote balance). However, low/zero-commission strategies still incentivize stake hoarding up to this cap. Tying the minimum commission to VP% provides a proportional economic disincentive without introducing new caps or complexity.</p>
+<p>A recent snapshot (January 2026) showed that only ~6 out of 73 active validators would be immediately affected by this rule, indicating minimal short-term disruption while providing a meaningful guardrail against further centralization. Community discussions highlighted broad concern about stake hoarding and strong preference for a lightweight, proportional solution.</p>
+<h2 id="specification-4"><a class="header" href="#specification-4">Specification</a></h2>
+<p>At the start of each epoch, during committee selection and staking reward calculations:</p>
+<ol>
+<li>
+<p>Use the validator’s <strong>effective voting power percentage (VP%)</strong> as determined by the protocol (already capped at a maximum of 10%).</p>
+</li>
+<li>
+<p>Enforce the effective minimum commission for the epoch:</p>
+</li>
+</ol>
+<p><code>effective_commission = max(validator_set_commission, VP%)</code></p>
+<p>The validator’s publicly set commission remains unchanged for display and future epochs; only the effective rate applied to rewards in the current epoch is adjusted upward if necessary.</p>
+<p>No other changes to delegation, reward distribution, or committee selection mechanics are required.</p>
+<h2 id="rationale-4"><a class="header" href="#rationale-4">Rationale</a></h2>
+<ul>
+<li><strong>Proportionality</strong>: Tying the minimum commission directly to influence (effective voting power) creates a natural economic incentive for stake distribution without arbitrary thresholds.</li>
+<li><strong>Bounded Impact</strong>: With the protocol’s 10% voting power cap per validator, the maximum enforced minimum commission under this rule is 10%, ensuring predictability and preventing excessive commission forcing.</li>
+<li><strong>Simplicity</strong>: The change requires only a minor adjustment in epoch-boundary logic and imposes negligible computational overhead.</li>
+<li><strong>Non-punitive</strong>: Validators can always set a higher commission proactively; the rule only corrects excessively low rates that contribute to centralization.</li>
+<li><strong>Community consensus</strong>: Extensive discussion showed strong validator support (~45% of surveyed stake weight fully supported this VP%-based model). The IOTA Foundation/Protocol Research team has expressed support for this lightweight approach as an effective initial guardrail.</li>
+</ul>
+<p>This design preserves delegator choice while gently nudging the system toward healthier stake distribution.</p>
+<h2 id="backwards-compatibility-5"><a class="header" href="#backwards-compatibility-5">Backwards Compatibility</a></h2>
+<p>The proposal is fully backwards compatible. No existing functionality is removed, and all current validator configurations remain valid. Validators with set commissions already ≥ their effective VP% are unaffected. Those with lower commissions will see their effective rate increased for the epoch (up to a maximum of 10%), but delegators are not penalized retroactively, and validators retain full control over future settings.</p>
+<p>No hard fork is required.</p>
+<h2 id="test-cases-2"><a class="header" href="#test-cases-2">Test Cases</a></h2>
+<p>Test cases should verify:</p>
+<ul>
+<li>A validator with 8% effective VP and 0% set commission has effective commission forced to 8%.</li>
+<li>A validator with 10% effective VP (at cap) and 5% set commission has effective commission forced to 10%.</li>
+<li>A validator with 10% effective VP and 12% set commission retains 12% effective commission.</li>
+<li>A validator with potential uncapped stake &gt;10% but effective VP capped at 10% has minimum commission enforced at most 10%.</li>
+<li>VP% calculations correctly handle edge cases (e.g., very small validators with VP% &lt; 0.01%).</li>
+</ul>
+<h2 id="reference-implementation-3"><a class="header" href="#reference-implementation-3">Reference Implementation</a></h2>
+<p>No full implementation is provided yet, as the change is minimal. It consists of adding the <code>max()</code> enforcement in the epoch transition logic where staking rewards and performance factors are computed, using the already-capped effective voting power values.</p>
+<h2 id="security-considerations"><a class="header" href="#security-considerations">Security Considerations</a></h2>
+<p>The change introduces no new attack vectors. All calculations use existing, audited stake accounting and voting power capping mechanisms. By reducing incentives for voting power concentration, it strengthens resistance to centralization-based attacks. No new privileges or state mutations are added.</p>
+<h2 id="copyright-4"><a class="header" href="#copyright-4">Copyright</a></h2>
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 
                     </main>
 

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>IIP-2 Starfish Consensus Protocol - The Iota Improvement Proposal (IIP) Book</title>
+        <title>IIP-8 Dynamic Minimum Commission based on the Validator&#x27;s Voting Power per Epoch - The Iota Improvement Proposal (IIP) Book</title>
 
 
         <!-- Custom HTML head -->
@@ -175,117 +175,73 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <pre>
-iip: 2
-title: Starfish Consensus Protocol
-description: A DAG-based consensus protocol improving liveness and efficiency
-author: Nikita Polianskii (@polinikita) <nikita.polianskii@iota.org>
-discussions-to: https://github.com/iotaledger/IIPs/discussions/10
+iip: 8
+title: Dynamic Minimum Commission based on the Validator's Voting Power per Epoch
+description: A dynamic minimum validator commission rate set to the validator's voting power percentage to prevent stake hoarding and promote decentralization.
+author: DLT.GREEN (@dlt_green)
+discussions-to: https://github.com/iotaledger/IIPs/discussions/29
 status: Draft
 type: Standards Track
 layer: Core
-created: 2025-04-16
-requires: None
+created: 2026-01-16
+</pre>
 
 <h2 id="abstract"><a class="header" href="#abstract">Abstract</a></h2>
-<p>This IIP proposes Starfish, a DAG-based consensus protocol enhancing Mysticeti. Starfish decouples block headers from transaction data, enabling push-based header dissemination, and encodes transaction data into Reed-Solomon shards for efficient reconstruction. These mechanisms improve liveness, reduce communication complexity to linear, and lower storage overhead, even in Byzantine environments.</p>
+<p>This IIP introduces a dynamic minimum validator commission rate that is automatically set to the validator’s effective voting power percentage (VP%) at the start of each epoch. Implemented as a simple <code>max(validator_set_commission, VP%)</code> enforcement, it prevents large validators from using persistently low or zero commissions to hoard stake, thereby reducing centralization risks and improving the sustainability and competitiveness of smaller validators.</p>
+<p>Due to the existing protocol cap on individual validator voting power at 10%, the enforced minimum commission will never exceed 10%.</p>
 <h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
-<p>Starfish addresses three limitations in Mysticeti:</p>
-<p><strong>Liveness.</strong> Because of Byzantine behaviour, slow or deadlocked network connection and/or slow computational capability, some
-validators, hereafter called <em>slow</em> validators, can share its own block to only a few selected peers in time. Blocks that reference
-blocks of slow validators can stay suspended in the block managers for a long time depending on the depth of the missing
-causal history. In Mysticeti, the blocks of the recent DAG are fetched by explicit requesting the missing parents of a given suspended block.
-This slow synchronization of the recent DAG can trigger liveness issues in Mysticeti. Starfish allows for faster synchronization
-of the recent DAG.</p>
-<p><strong>Communication complexity.</strong> For n=3f+1, we can observe in the network with f slow validators situations when each block of a slow validator, while being disseminated to f not-slow validators, will be requested from these validators by other validators.
-This may lead to impractical quadratic communication complexity O(n^2). Starfish keeps the communication complexity linear
-for all circumstances by using Reed-Solomon codes and using shards in dissemination of other blocks.</p>
-<p><strong>Storage overhead.</strong> Now each validator store the whole transaction data associated with a block. With Starfish, we can
-store block headers with only one shard of transaction data, reducing the size of the consensus database.</p>
+<p>In the current IOTA staking system, validators are free to set any commission rate, including 0%. Large validators (or those with significant self-stake) can leverage low commissions to attract a disproportionate share of delegations, leading to concentration of voting power. This creates a feedback loop where dominant validators become increasingly attractive to delegators seeking maximum rewards, marginalizing mid-sized and smaller validators and threatening long-term network decentralization.</p>
+<p>The protocol already caps individual validator voting power at 10% (with excess stake redistributed to promote balance). However, low/zero-commission strategies still incentivize stake hoarding up to this cap. Tying the minimum commission to VP% provides a proportional economic disincentive without introducing new caps or complexity.</p>
+<p>A recent snapshot (January 2026) showed that only ~6 out of 73 active validators would be immediately affected by this rule, indicating minimal short-term disruption while providing a meaningful guardrail against further centralization. Community discussions highlighted broad concern about stake hoarding and strong preference for a lightweight, proportional solution.</p>
 <h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
-<p>Starfish requires implementation of a new crate as it contains many new components in consensus and modifies existing modules.
-Below, we sum up the most important changes compared to the current version of Mysticeti:</p>
-<ul>
-<li>Block Structure:
-<ul>
-<li>Separation of Header and Data: Blocks are split into headers (containing metadata) and body optionally containing transaction data or shard. Only headers are signed, and the block digest is calculated solely from the header.</li>
-<li>Data Commitment: Blocks include a Merkle root commitment to encoded transaction data.</li>
-<li>Data Acknowledgment: Once the transaction data of a block is available by a validator, it should acknowledge that in next block.</li>
-<li>Sharding with Reed-Solomon Codes: Transaction data is encoded into shards using Reed-Solomon codes, allowing reconstruction from a subset of shards.
-The commitment could be a Merkle tree on the encoded shards. For own blocks, send full transaction data; for blocks of other validators, send shards together with proofs.</li>
-</ul>
+<p>At the start of each epoch, during committee selection and staking reward calculations:</p>
+<ol>
+<li>
+<p>Use the validator’s <strong>effective voting power percentage (VP%)</strong> as determined by the protocol (already capped at a maximum of 10%).</p>
 </li>
-<li>Encoder/Decoder: block verifier, core and data manager should be equipped by [n,f+1] Reed-Solomon encoders and decoders to a) ensure the correctness
-of the computed transaction commitment, b) be able to decode the transaction data from locally available shards, c) create
-new blocks</li>
-<li>Block Verifier:
-Validates incoming block headers independently. If transaction data is received, verifies its commitment against the header to ensure correctness.</li>
-<li>Data Manager:
-Handles transaction data retrieval and reconstruction. Requests missing data from the block author first (full data with sharding) or from nodes acknowledging the data (shards). Once reconstructed, data is forwarded to the DagState for storage and future serving.</li>
-<li>Block Creation:
-Generates blocks with separate headers and transaction data. The data commitment should be computed based on the encoded transaction data by using some commitment scheme that allow for proofs, e.g. Merkle tree. Includes in a block header pending data acknowledgments.</li>
-<li>Dag State:
-In addition, it should track for which blocks, a validator has transaction data (pending acknowledgments). Another important structure should provide information about who knows which block headers to disseminate only those block headers
-that are indeed needed.</li>
-<li>Linearizer:
-Tracks data acknowledgments for past blocks, including only quorum-acknowledged data in new commits.</li>
-<li>Streaming own blocks:
-Broadcast own blocks with their transaction data and block headers potentially missing by peers.</li>
-<li>Storage:
-Separates storage for headers and shards and own transaction data. Triggers data storage upon availability to minimize overhead.</li>
-<li>Commit Structure:
-Includes references to headers traversed by the Linearizer for data acknowledgment collection. Lists data blocks with a quorum of acknowledgments with optional bitmaps of acknowledging nodes to optimize data retrieval.</li>
-</ul>
-<p>Starfish can be enabled via protocol parameters.</p>
-<p>For theoretical details, see <a href="https://eprint.iacr.org/2025/567">eprint.iacr.org/2025/567</a>.</p>
+<li>
+<p>Enforce the effective minimum commission for the epoch:</p>
+</li>
+</ol>
+<p><code>effective_commission = max(validator_set_commission, VP%)</code></p>
+<p>The validator’s publicly set commission remains unchanged for display and future epochs; only the effective rate applied to rewards in the current epoch is adjusted upward if necessary.</p>
+<p>No other changes to delegation, reward distribution, or committee selection mechanics are required.</p>
 <h2 id="rationale"><a class="header" href="#rationale">Rationale</a></h2>
-<p>Starfish’s design is driven by the need to enhance Mysticeti’s performance in bad network conditions and/or adversarial environment. Key decisions include:</p>
 <ul>
-<li><strong>Header-Data Decoupling</strong>: Since the constructed DAG in Mysticeti is uncertified, the block propogation is one of the key issues. We decouple the header from data in the block structure to ensure that we can push all the required block headers. Only block headers are needed for driving the consensus. The transaction data can be retrieved once sequenced.</li>
-<li><strong>Data Acknowledgments</strong>: Since we decouple headers from data, we can’t simply sequence the data associated with a block by a vanilla Mysticeti commit rule as it might be unavailable by a majority of the network. Thereby, one needs to include in block headers acknowledgments about transaction data availability for past blocks. In addition, for sequencing transactions one needs to get a quorum of acknowledgments.</li>
-<li><strong>Reed-Solomon Sharding</strong>: Chosen for its ability to reconstruct data from any f+1 shards, ensuring linear communication complexity. Reed-Solomon codes are optimal in terms of recoverability and this is a primary reason why we stick with them. In addition, there are libraries (e.g. https://crates.io/crates/reed-solomon-simd) that are very CPU efficient and consume little memory.</li>
-<li><strong>Merkle Tree Commitments</strong>: Preferred for their simple proof generation, enabling shard verification without full data.</li>
-<li><strong>Data Manager</strong>: To ensure live consensus decisions, it is enough to have available all block headers in the causal history of blocks. Data manager is needed to fetch potentially missing transaction data from peers once it is sequenced and available to a quorum of the network.</li>
+<li><strong>Proportionality</strong>: Tying the minimum commission directly to influence (effective voting power) creates a natural economic incentive for stake distribution without arbitrary thresholds.</li>
+<li><strong>Bounded Impact</strong>: With the protocol’s 10% voting power cap per validator, the maximum enforced minimum commission under this rule is 10%, ensuring predictability and preventing excessive commission forcing.</li>
+<li><strong>Simplicity</strong>: The change requires only a minor adjustment in epoch-boundary logic and imposes negligible computational overhead.</li>
+<li><strong>Non-punitive</strong>: Validators can always set a higher commission proactively; the rule only corrects excessively low rates that contribute to centralization.</li>
+<li><strong>Community consensus</strong>: Extensive discussion showed strong validator support (~45% of surveyed stake weight fully supported this VP%-based model). The IOTA Foundation/Protocol Research team has expressed support for this lightweight approach as an effective initial guardrail.</li>
 </ul>
+<p>This design preserves delegator choice while gently nudging the system toward healthier stake distribution.</p>
 <h2 id="backwards-compatibility"><a class="header" href="#backwards-compatibility">Backwards Compatibility</a></h2>
-<p>Starfish introduces backwards incompatibilities with Mysticeti consensus crate:</p>
-<ul>
-<li><strong>Block Structure</strong>: The new header-data split and sharding are incompatible with Mysticeti’s monolithic blocks.</li>
-<li><strong>Storage</strong>: Mysticeti’s full-data storage is replaced by header-shard storage. This storage is not replacable across validators.</li>
-<li><strong>Protocol Logic</strong>: Components like block verifier and linearizer require updates, breaking compatibility with Mysticeti’s logic.</li>
-</ul>
-<p><strong>Mitigation</strong>:</p>
-<ul>
-<li>Use crate <code>iotaledger/iota/crates/starfish</code> and enable Starfish with protocol parameters.</li>
-<li>Test compatibility in a public testnet to ensure node upgrades are seamless.</li>
-<li>Remove <code>iotaledger/iota/consensus</code> at a later point</li>
-</ul>
+<p>The proposal is fully backwards compatible. No existing functionality is removed, and all current validator configurations remain valid. Validators with set commissions already ≥ their effective VP% are unaffected. Those with lower commissions will see their effective rate increased for the epoch (up to a maximum of 10%), but delegators are not penalized retroactively, and validators retain full control over future settings.</p>
+<p>No hard fork is required.</p>
 <h2 id="test-cases"><a class="header" href="#test-cases">Test Cases</a></h2>
-<p>The new consensus crate will need to be extensively tested. In particular, all exising modules, e.g. block verifier, will require modifications in existing tests.
-All new modules (e.g. encoder/decoder) will require testing of typical possible scenarios.
-To ensure that the new consensus serves its purposes, there should be tests mimicking slow validators that fail to properly disseminate their blocks and this behaviour should not affect the liveness of the consensus.</p>
-<h2 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h2>
-<p>A prototype implementation is available at <a href="https://github.com/iotaledger/starfish">github.com/iotaledger/starfish</a>. It includes:</p>
+<p>Test cases should verify:</p>
 <ul>
-<li>A new crate with core Starfish-specific components (tracking who knows which block headers, encoding/decoding, data fetcher, Starfish linearizer sequencer, etc.).</li>
-<li>Modified Mysticeti modules (Block store, Linearizer, Block Verifier).</li>
-<li>Simulation scripts to test latency, throughput and bandwidth efficiency locally and in a geo-distributed network.</li>
+<li>A validator with 8% effective VP and 0% set commission has effective commission forced to 8%.</li>
+<li>A validator with 10% effective VP (at cap) and 5% set commission has effective commission forced to 10%.</li>
+<li>A validator with 10% effective VP and 12% set commission retains 12% effective commission.</li>
+<li>A validator with potential uncapped stake &gt;10% but effective VP capped at 10% has minimum commission enforced at most 10%.</li>
+<li>VP% calculations correctly handle edge cases (e.g., very small validators with VP% &lt; 0.01%).</li>
 </ul>
-<p>This draft aids consensus developers and will be refined for production.</p>
+<h2 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h2>
+<p>No full implementation is provided yet, as the change is minimal. It consists of adding the <code>max()</code> enforcement in the epoch transition logic where staking rewards and performance factors are computed, using the already-capped effective voting power values.</p>
+<h2 id="security-considerations"><a class="header" href="#security-considerations">Security Considerations</a></h2>
+<p>The change introduces no new attack vectors. All calculations use existing, audited stake accounting and voting power capping mechanisms. By reducing incentives for voting power concentration, it strengthens resistance to centralization-based attacks. No new privileges or state mutations are added.</p>
 <h2 id="copyright"><a class="header" href="#copyright">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
-</nikita.polianskii@iota.org></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../iips/IIP-0001/iip-0001.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../iips/IIP-0007/IIP-0007.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../iips/IIP-0003/iip-0003.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -293,13 +249,10 @@ To ensure that the new consensus serves its purposes, there should be tests mimi
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../iips/IIP-0001/iip-0001.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../iips/IIP-0007/IIP-0007.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../iips/IIP-0003/iip-0003.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
-                    </a>
             </nav>
 
         </div>
