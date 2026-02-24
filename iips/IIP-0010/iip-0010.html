@@ -1,0 +1,535 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>IIP-10 Package Metadata - The Iota Improvement Proposal (IIP) Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex-46330fdd.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-666c5511.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Iota Improvement Proposal (IIP) Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <pre>
+iip: 10
+title: Package Metadata
+description: Immutable on-chain object that provides trusted metadata about Move packages during execution.
+author: Mirko Zichichi (@miker83z) <mirko.zichichi@iota.org>, Valerii Reutov (@valeriyr) <valerii.reutov@iota.org>
+discussions-to: https://github.com/iotaledger/IIPs/discussions/36
+status: Draft
+type: Standards Track
+layer: Core
+created: 2026-02-17
+requires: None
+
+<h2 id="abstract"><a class="header" href="#abstract">Abstract</a></h2>
+<p><code>PackageMetadata</code> is an immutable on-chain object that provides trusted metadata about Move packages during execution. Because <code>PackageMetadata</code> objects are created exclusively by the protocol during publish and upgrade operations, Move code can read this metadata with full confidence in its authenticity. This enables on-chain verification of package properties without relying on user-provided claims. This mechanism allows Move modules to introspect package capabilities, verify function signatures, and make decisions based on protocol-attested information.</p>
+<h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
+<p>Move execution might require knowledge about external packages or the same package being used: What functions does a package expose? What capabilities does it claim? Is a given function a valid authenticator?</p>
+<p>Traditionally, answering these questions required either:</p>
+<ol>
+<li>Trusting user input:
+<ul>
+<li>accepting claims about packages without verification</li>
+<li>drawback: user input can be malicious</li>
+</ul>
+</li>
+<li>Hardcoding knowledge:
+<ul>
+<li>embedding package-specific logic in modules</li>
+<li>drawback: hardcoding doesn’t scale</li>
+</ul>
+</li>
+<li>Off-chain verification:
+<ul>
+<li>checking properties before transaction submission</li>
+<li>drawback: user input can be malicious</li>
+</ul>
+</li>
+</ol>
+<p><code>PackageMetadata</code> solves this by providing protocol-attested package introspection. Because only the protocol can create <code>PackageMetadata</code> objects (during publish/upgrade), and because these objects are immutable, Move code can trust their contents completely. This enables:</p>
+<ul>
+<li>On-chain capability discovery: Modules can query what a package provides.</li>
+<li>Dynamic integration: Modules can work with packages they were not compiled against (at the metadata level).</li>
+<li>Protocol-enforced properties: Metadata reflects verified attributes; no need to trust user claims about packages.</li>
+</ul>
+<p>Possible use cases exploiting <code>PackageMetadata</code> could be:</p>
+<ol>
+<li>Account Abstraction (planned) (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/iip-0009.md">IIP-0009</a>): Move code reads <code>PackageMetadata</code> to verify that a function is a valid authenticator and to obtain the account type it authenticates. This enables the <code>account</code> module to create <code>AuthenticatorInfoV1</code> instances that reference verified authenticator functions.</li>
+<li>View Functions (planned) (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0005/iip-0005.md">IIP-0005</a>): Modules and clients can discover which functions are safe to call without state changes.</li>
+<li>Capability Verification: Modules can verify package capabilities before granting access.</li>
+<li>Function modifiers: Modules can parse functions of any package to check whether they are entry, private, etc.</li>
+</ol>
+<h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
+<p>In this section, we present the technical specification for implementing an Package Metadata model version 1 within the IOTA protocol. The specification begins by outlining a set of functional requirements the model must satisfy, followed by a high-level overview of the proposed architectural approach. Finally, the main set of Move type interfaces will be provided as standard for the first version of this model.</p>
+<h3 id="requirements"><a class="header" href="#requirements">Requirements</a></h3>
+<p>The proposed Package Metadata model must adhere to the following constraints:</p>
+<ol>
+<li>Protocol-only creation: <code>PackageMetadata</code> objects can only be created by the protocol during publish or upgrade execution. There is no public constructor or creation function exposed to Move code. This guarantees that:
+<ul>
+<li>All <code>PackageMetadata</code> content is derived from verified bytecode</li>
+<li>Users cannot forge or tamper with metadata</li>
+<li>Move code can trust metadata without additional verification</li>
+</ul>
+</li>
+<li>Immutability: <code>PackageMetadata</code> objects are frozen immediately upon creation.</li>
+<li>Conditional Creation: <code>PackageMetadata</code> is created only when meaningful metadata exists, e.g., at least one recognized attribute must be present in a module of the package. Packages without attributes have no <code>PackageMetadata</code> object.</li>
+<li>Deterministic <code>PackageMetadata</code> id derivation: Given any package id, the corresponding <code>PackageMetadata</code> object id can be computed using the derived object mechanism (same as dynamic fields id derivation). See https://docs.sui.io/guides/developer/objects/derived-objects. Move code can compute this derivation on-chain.</li>
+</ol>
+<h3 id="high-level-overview"><a class="header" href="#high-level-overview">High-Level Overview</a></h3>
+<p>To support <code>PackageMetadata</code>, we propose to modify part of the Move compilation, part of the publish/upgrade execution and the addition of a new module to the iota-framework.</p>
+<p>In the following, we are going to use the usage of Package Metadata within the IOTA Account Abstraction model (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/iip-0009.md">IIP-0009</a>), because that is a concrete use of the standard.</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│ 1. COMPILATION (Developer Machine)                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  #[authenticator]              ┌──────────────────────┐         │
+│  public fun authenticate(..)   │ RuntimeModuleMetadata│         │
+│         │                      │ embedded in bytecode │         │
+│         └─────────────────────▶│                      │         │
+│                                └──────────────────────┘         │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. PUBLISH/UPGRADE (Protocol Execution)                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────┐    ┌────────────────────────────┐      │
+│  │ Extract metadata    │───▶│ Verify each attribute      │      │
+│  │ from bytecode       │    │ (authenticator sig check)  │      │
+│  └─────────────────────┘    └────────────────────────────┘      │
+│            │                              │                     │
+│            │         ┌────────────────────┘                     │
+│            ▼         ▼                                          │
+│  ┌─────────────────────────────────────────┐                    │
+│  │ PROTOCOL creates PackageMetadataV1      │                    │
+│  │ - Populates from verified attributes    │                    │
+│  │ - Derives object ID from package ID     │                    │
+│  │ - Freezes object (immutable)            │                    │
+│  └─────────────────────────────────────────┘                    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. RUNTIME (Move VM Execution)                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  // Any Move code can read and trust this metadata              │
+│                                                                 │
+│  public fun create_authenticator_info(                          │
+│      metadata: &amp;PackageMetadataV1,  // Protocol-created         │
+│      module_name: String,                                       │
+│      function_name: String,                                     │
+│  ): AuthenticatorInfoV1 {                                       │
+│      // Safe: metadata is protocol-verified                     │
+│      let auth = metadata.get_authenticator(module_name, fn);    │
+│      // auth.account_type is TRUSTWORTHY                        │
+│      AuthenticatorInfoV1 { ... }                                │
+│  }                                                              │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h4 id="compilation-and-building-phase"><a class="header" href="#compilation-and-building-phase">Compilation and building phase</a></h4>
+<p>The process begins on the developer’s machine during package compilation. When the Move compiler encounters a function annotated with a recognized attribute (such as <code>#[authenticator]</code>), it records this information in the function’s metadata. The compiler performs initial syntax validation, ensuring the attribute is well-formed and applied to an appropriate element, but does not verify semantic correctness (e.g., whether the function signature actually satisfies authenticator requirements).</p>
+<p>During the build phase, the collected attribute information is serialized into a <code>RuntimeModuleMetadata</code> structure and embedded directly into the module’s bytecode. Once all attributes for a module are collected, the <code>RuntimeModuleMetadataV1</code> is wrapped in a <code>RuntimeModuleMetadataWrapper</code> (which includes a version number) and serialized to BCS bytes. These bytes are then pushed into the module’s bytecode metadata vector using a dedicated key.</p>
+<p>The <code>IOTA_METADATA_KEY</code> is a protocol-defined constant that acts as a reserved namespace. While the bytecode format allows arbitrary metadata entries, the protocol’s verifier enforces strict rules:</p>
+<ol>
+<li>Single Entry: A module may have at most one metadata entry with the <code>IOTA_METADATA_KEY</code></li>
+<li>Valid Structure: The bytes must deserialize to a valid <code>RuntimeModuleMetadataWrapper</code></li>
+<li>Verified Content: Each attribute within the metadata must pass its corresponding verifier</li>
+</ol>
+<p>Finally, the metadata will travels with the bytecode through the publish transaction, ensuring the protocol has access to the original annotations.</p>
+<h4 id="publishupgrade-phase"><a class="header" href="#publishupgrade-phase">Publish/Upgrade phase</a></h4>
+<p>When a publish or upgrade transaction is executed, the protocol takes over. This phase is critical because it establishes the trust boundary: everything that happens here is performed by the protocol itself, not by user code.</p>
+<h5 id="verification"><a class="header" href="#verification">Verification</a></h5>
+<p>During publish or upgrade, the protocol extracts <code>RuntimeModuleMetadata</code> from each module’s bytecode using this the <code>IOTA_METADATA_KEY</code>, deserializes it, and verifies each attribute. For every attribute found, the protocol invokes the corresponding verifier. For authenticator attributes, for instance, this means calling <code>verify_authenticate_func_v1()</code>, which checks that the function has the correct visibility, parameter types, and return type (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/iip-0009.md">IIP-0009</a>).</p>
+<p>If any verification fails, the entire publish or upgrade transaction fails. User code cannot write to the <code>IOTA_METADATA_KEY</code> slot in a way that would bypass verification, because the verifier runs before execution completes, and any invalid metadata causes the transaction to fail.</p>
+<h5 id="object-creation"><a class="header" href="#object-creation">Object creation</a></h5>
+<p>Once all attributes are verified, the protocol constructs the <code>PackageMetadataV1</code> object. For each module containing verified attributes, it creates a <code>ModuleMetadataV1</code> entry. For authenticator attributes specifically, it extracts the first parameter’s type from the verified function signature, this becomes the <code>account_type</code> field, representing which object type this authenticator can authenticate.</p>
+<p>Finally, the protocol creates the <code>PackageMetadataV1</code> object and immediately freezes it, making it immutable. The object is stored on-chain with no owner (immutable objects have no owner), ensuring it cannot be modified or deleted.</p>
+<h5 id="object-id-derivation"><a class="header" href="#object-id-derivation">Object id derivation</a></h5>
+<p>During the creation, the protocol derives the metadata object’s ID deterministically from the package’s storage ID, reusing the dynamic field address derivation logic:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>package_metadata_id
+= derive_object_id(package_storage_id, &lt;0x2::package_metadata::PackageMetadataKey&gt;, {/* dummy bool */})
+= derive_dynamic_field_id(package_storage_id, &lt;0x2::derived_object::DerivedObjectKey&lt;0x2::package_metadata::PackageMetadataKey&gt;&gt;, {/* dummy bool */})
+= Blake2b256(
+    HashingIntentScope::ChildObjectId /* 0xF0 */
+    || package_storage_id
+    || len({/* dummy bool */})
+    || {/* dummy bool */}
+    || bcs(&lt;0x2::derived_object::DerivedObjectKey&lt;0x2::package_metadata::PackageMetadataKey&gt;&gt;)
+)
+<span class="boring">}</span></code></pre>
+<p>Where:</p>
+<ul>
+<li><code>package_storage_id</code> - The object ID of the package (treated as the “parent”)</li>
+<li><code>&lt;0x2::derived_object::DerivedObjectKey&lt;0x2::package_metadata::PackageMetadataKey&gt;&gt;</code> - The full type tag wrapping the key type, i.e., <code>&lt;0x2::package_metadata::PackageMetadataKey&gt;</code>, (which can be arbitrary for the derived object mechanism) in the <code>&lt;0x2::derived_object::DerivedObjectKey&lt;T&gt;&gt;</code> type (which is hardcoded in this mechanism).</li>
+<li><code>{/* dummy bool */}</code> - The key bytes, which in the case of PackageMetadataKey contains only a dummy bool field.</li>
+<li><code>bcs()</code> - The BCS serialization of a key type.</li>
+<li><code>Blake2b256()</code> - The hashing function used for the ID derivation</li>
+<li><code>HashingIntentScope::ChildObjectId</code> - The flag used to avoid hash collisions. Hardcoded value of 240 (or 0xF0).</li>
+<li><code>||</code> - Concatenation</li>
+</ul>
+<p>This derivation ensures that given any package ID, the corresponding metadata ID can always be computed without an on-chain lookup.</p>
+<h4 id="runtime-phase"><a class="header" href="#runtime-phase">Runtime phase</a></h4>
+<p>After a successful publish/upgrade, any Move code can read the <code>PackageMetadata</code> object by borrowing it as an immutable reference. For example, when the Account Abstraction framework needs to create an <code>AuthenticatorFunctionRefV1</code> for an account, it reads the relevant <code>PackageMetadataV1</code> object, looks up the authenticator by module and function name, and extracts the <code>account_type</code>. This type information is trustworthy because it was extracted from verified bytecode by the protocol, i.e., not provided by user input or claimed by the package developer.</p>
+<pre><code class="language-move">public fun create_auth_function_ref_v1&lt;Account: key&gt;(
+    package_metadata: &amp;PackageMetadataV1,
+    module_name: ascii::String,
+    function_name: ascii::String,
+): AuthenticatorFunctionRefV1&lt;Account&gt; {
+    // TRUST: metadata was created by protocol, not user
+    let authenticator_metadata = package_metadata
+        .modules_metadata_v1(
+            &amp;module_name,
+        )
+        .authenticator_metadata_v1(&amp;function_name);
+
+    // TRUST: account_type was extracted from VERIFIED bytecode
+    assert!(
+        type_name::get&lt;Account&gt;() == authenticator_metadata.account_type(),
+        EAuthenticatorFunctionRefV1NotCompatibleWithAccount,
+    );
+    AuthenticatorFunctionRefV1 {
+        package: package_metadata.storage_id(),
+        module_name,
+        function_name,
+    }
+}
+</code></pre>
+<h4 id="move-types-and-methods-specification"><a class="header" href="#move-types-and-methods-specification">Move Types and Methods Specification</a></h4>
+<h5 id="main-types"><a class="header" href="#main-types">Main Types:</a></h5>
+<pre><code class="language-move">
+/// Key type for deriving the package metadata object address
+public struct PackageMetadataKey has copy, drop, store {}
+
+/// Represents the metadata of a Move package. This includes information
+/// such as the storage ID, runtime ID, version, and metadata for the
+/// functions contained within the package.
+public struct PackageMetadataV1 has key {
+    id: UID,
+    /// Storage ID of the package represented by this metadata
+    /// The object id of the runtime package metadata object is derived from
+    /// this value.
+    storage_id: ID,
+    /// Runtime ID of the package represented by this metadata. Runtime ID is
+    /// the Storage ID of the first version of a package.
+    runtime_id: ID,
+    /// Version of the package represented by this metadata
+    package_version: u64,
+    // Handles to internal package modules
+    modules_metadata: VecMap&lt;ascii::String, ModuleMetadataV1&gt;,
+}
+
+/// Represents metadata associated with a module in the package.
+/// V1 includes only the authenticator functions information.
+public struct ModuleMetadataV1 has copy, drop, store {
+    authenticator_metadata: vector&lt;AuthenticatorMetadataV1&gt;,
+}
+
+/// Represents metadata for an authenticator within the package.
+/// It includes the name of the authenticate function and the TypeName
+/// of the first parameter (i.e., the account object type).
+public struct AuthenticatorMetadataV1 has copy, drop, store {
+    function_name: ascii::String,
+    account_type: TypeName,
+}
+</code></pre>
+<h5 id="key-accessor-functions"><a class="header" href="#key-accessor-functions">Key Accessor Functions:</a></h5>
+<pre><code class="language-move">/// Return the version of the package represented by this metadata
+public fun package_version(metadata: &amp;PackageMetadataV1): u64 { }
+
+/// Safely get the module metadata list of the package represented by this metadata
+public fun try_get_modules_metadata_v1(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+): Option&lt;ModuleMetadataV1&gt; { }
+
+/// Borrow the module metadata list of the package represented by this metadata.
+/// Aborts if the module is not found.
+public fun modules_metadata_v1(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+): &amp;ModuleMetadataV1 { }
+
+/// Safely get the `AuthenticatorMetadataV1` associated with the specified
+/// `function_name` within the module metadata.
+public fun try_get_authenticator_metadata_v1(
+    self: &amp;ModuleMetadataV1,
+    function_name: &amp;ascii::String,
+): Option&lt;AuthenticatorMetadataV1&gt; { }
+
+/// Borrow the `AuthenticatorMetadataV1` associated with the specified
+/// `function_name`.
+/// Aborts if the authenticator metadata is not found for that function.
+public fun authenticator_metadata_v1(
+    self: &amp;ModuleMetadataV1,
+    function_name: &amp;ascii::String,
+): &amp;AuthenticatorMetadataV1 { }
+
+/// Return the account type of the authenticator represented by this metadata
+public fun account_type(self: &amp;AuthenticatorMetadataV1): TypeName { }
+</code></pre>
+<h2 id="rationale"><a class="header" href="#rationale">Rationale</a></h2>
+<p>When the protocol creates metadata, it does so by extracting information from verified bytecode, not from user claims or developer assertions. This means Move code reading <code>PackageMetadata</code> can trust its contents implicitly: if the metadata says a function is a valid authenticator with a specific account type, that fact has been verified by the protocol during publish.</p>
+<p><code>PackageMetadata</code> is frozen immediately upon creation because the information it represents, i.e., a package metadata, is itself immutable. Once a package is published, its bytecode cannot change, so metadata derived from that bytecode should not change either. If a package is upgraded, then a new <code>PackageMetadata</code> object dedicated to the new version is created. Moreover, <code>PackageMetadata</code> objects are only created when a package contains at least one recognized attribute.</p>
+<p>Computing metadata IDs deterministically from package IDs means that any code, on-chain Move or off-chain tooling, can calculate a package metadata ID without performing a lookup. This eliminates the need to store the mapping explicitly and ensures the relationship between package and metadata is inherent rather than recorded.</p>
+<h3 id="backwards-compatibility"><a class="header" href="#backwards-compatibility">Backwards Compatibility</a></h3>
+<ol>
+<li>Existing Packages: For packages published before <code>PackageMetadata</code> introduction no metadata object exists and these packages continue to function normally.</li>
+<li>Package Upgrades: Each upgrade creates a new <code>PackageMetadata</code> for that version, but old metadata objects remain always valid and accessible. package_version distinguishes between versions and runtime_id links all versions to the original package.</li>
+<li>Adding New Attributes and Fields to the Model: New attributes can be added without breaking existing code adding a variant to <code>IotaAttribute</code> enum or a field to <code>ModuleMetadata</code> and increase the <code>PackageMetadata</code> version, i.e., <code>PackageMetadataV2</code>, <code>V3</code>, etc. Existing metadata continues to work.</li>
+</ol>
+<h2 id="test-cases"><a class="header" href="#test-cases">Test Cases</a></h2>
+<ol>
+<li>Abstracted IOTA Accounts Authenticator Functions.</li>
+<li>Move View Functions</li>
+</ol>
+<h2 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h2>
+<p>Main PR against the develop branch: https://github.com/iotaledger/iota/pull/9586. See <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/iip-0009.md">IIP-0009</a>.</p>
+<h2 id="questions-and-open-issues"><a class="header" href="#questions-and-open-issues">Questions and Open Issues</a></h2>
+<ol>
+<li>Metadata for Non-Attributed Packages: Should minimal metadata be created for all packages (e.g., just IDs and version)?</li>
+<li>Cross-Package Queries: Should Move code be able to query metadata for arbitrary packages, or only those passed as arguments?</li>
+<li>Metadata Expiration: Should old package version metadata eventually be prunable?</li>
+</ol>
+<h2 id="future-work"><a class="header" href="#future-work">Future Work</a></h2>
+<h3 id="planned-attributes"><a class="header" href="#planned-attributes">Planned Attributes</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Attribute</th><th>Purpose</th><th>Metadata Fields</th></tr>
+</thead>
+<tbody>
+<tr><td><code>#[authenticator]</code></td><td>Account authentication</td><td>function_name, account_type</td></tr>
+<tr><td><code>#[view]</code></td><td>Read-only functions</td><td>function_name, return_type</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="tooling"><a class="header" href="#tooling">Tooling</a></h3>
+<ul>
+<li>CLI: <code>iota package metadata &lt;package-id&gt;</code></li>
+<li>GraphQL: Package metadata queries</li>
+<li>Explorer: Metadata visualization</li>
+</ul>
+<h2 id="copyright"><a class="header" href="#copyright">Copyright</a></h2>
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+</valerii.reutov@iota.org></mirko.zichichi@iota.org></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../iips/IIP-0009/iip-0009.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../iips/IIP-0009/iip-0009.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
