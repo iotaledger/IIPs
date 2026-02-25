@@ -35,10 +35,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-46330fdd.js";
+            window.path_to_searchindex_js = "../../searchindex-44f303dc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-666c5511.js"></script>
+        <script src="../../toc-1bc9e394.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -219,7 +219,7 @@ requires: None
 </ul>
 <p>Possible use cases exploiting <code>PackageMetadata</code> could be:</p>
 <ol>
-<li>Account Abstraction (planned) (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/iip-0009.md">IIP-0009</a>): Move code reads <code>PackageMetadata</code> to verify that a function is a valid authenticator and to obtain the account type it authenticates. This enables the <code>account</code> module to create <code>AuthenticatorInfoV1</code> instances that reference verified authenticator functions.</li>
+<li>Account Abstraction (planned) (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/IIP-0009.md">IIP-0009</a>): Move code reads <code>PackageMetadata</code> to verify that a function is a valid authenticator and to obtain the account type it authenticates. This enables the <code>account</code> module to create <code>AuthenticatorInfoV1</code> instances that reference verified authenticator functions.</li>
 <li>View Functions (planned) (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0005/iip-0005.md">IIP-0005</a>): Modules and clients can discover which functions are safe to call without state changes.</li>
 <li>Capability Verification: Modules can verify package capabilities before granting access.</li>
 <li>Function modifiers: Modules can parse functions of any package to check whether they are entry, private, etc.</li>
@@ -242,7 +242,7 @@ requires: None
 </ol>
 <h3 id="high-level-overview"><a class="header" href="#high-level-overview">High-Level Overview</a></h3>
 <p>To support <code>PackageMetadata</code>, we propose to modify part of the Move compilation, part of the publish/upgrade execution and the addition of a new module to the iota-framework.</p>
-<p>In the following, we are going to use the usage of Package Metadata within the IOTA Account Abstraction model (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/iip-0009.md">IIP-0009</a>), because that is a concrete use of the standard.</p>
+<p>In the following, we are going to use the usage of Package Metadata within the IOTA Account Abstraction model (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/IIP-0009.md">IIP-0009</a>), because that is a concrete use of the standard.</p>
 <pre><code>┌─────────────────────────────────────────────────────────────────┐
 │ 1. COMPILATION (Developer Machine)                              │
 ├─────────────────────────────────────────────────────────────────┤
@@ -306,7 +306,7 @@ requires: None
 <h4 id="publishupgrade-phase"><a class="header" href="#publishupgrade-phase">Publish/Upgrade phase</a></h4>
 <p>When a publish or upgrade transaction is executed, the protocol takes over. This phase is critical because it establishes the trust boundary: everything that happens here is performed by the protocol itself, not by user code.</p>
 <h5 id="verification"><a class="header" href="#verification">Verification</a></h5>
-<p>During publish or upgrade, the protocol extracts <code>RuntimeModuleMetadata</code> from each module’s bytecode using this the <code>IOTA_METADATA_KEY</code>, deserializes it, and verifies each attribute. For every attribute found, the protocol invokes the corresponding verifier. For authenticator attributes, for instance, this means calling <code>verify_authenticate_func_v1()</code>, which checks that the function has the correct visibility, parameter types, and return type (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/iip-0009.md">IIP-0009</a>).</p>
+<p>During publish or upgrade, the protocol extracts <code>RuntimeModuleMetadata</code> from each module’s bytecode using this the <code>IOTA_METADATA_KEY</code>, deserializes it, and verifies each attribute. For every attribute found, the protocol invokes the corresponding verifier. For authenticator attributes, for instance, this means calling <code>verify_authenticate_func_v1()</code>, which checks that the function has the correct visibility, parameter types, and return type (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/IIP-0009.md">IIP-0009</a>).</p>
 <p>If any verification fails, the entire publish or upgrade transaction fails. User code cannot write to the <code>IOTA_METADATA_KEY</code> slot in a way that would bypass verification, because the verifier runs before execution completes, and any invalid metadata causes the transaction to fail.</p>
 <h5 id="object-creation"><a class="header" href="#object-creation">Object creation</a></h5>
 <p>Once all attributes are verified, the protocol constructs the <code>PackageMetadataV1</code> object. For each module containing verified attributes, it creates a <code>ModuleMetadataV1</code> entry. For authenticator attributes specifically, it extracts the first parameter’s type from the verified function signature, this becomes the <code>account_type</code> field, representing which object type this authenticator can authenticate.</p>
@@ -452,7 +452,7 @@ public fun account_type(self: &amp;AuthenticatorMetadataV1): TypeName { }
 <li>Move View Functions</li>
 </ol>
 <h2 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h2>
-<p>Main PR against the develop branch: https://github.com/iotaledger/iota/pull/9586. See <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/iip-0009.md">IIP-0009</a>.</p>
+<p>Main PR against the develop branch: https://github.com/iotaledger/iota/pull/9586. See <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0009/IIP-0009.md">IIP-0009</a>.</p>
 <h2 id="questions-and-open-issues"><a class="header" href="#questions-and-open-issues">Questions and Open Issues</a></h2>
 <ol>
 <li>Metadata for Non-Attributed Packages: Should minimal metadata be created for all packages (e.g., just IDs and version)?</li>
@@ -486,7 +486,7 @@ public fun account_type(self: &amp;AuthenticatorMetadataV1): TypeName { }
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../iips/IIP-0009/iip-0009.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../iips/IIP-0009/IIP-0009.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -497,7 +497,7 @@ public fun account_type(self: &amp;AuthenticatorMetadataV1): TypeName { }
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../iips/IIP-0009/iip-0009.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../iips/IIP-0009/IIP-0009.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
