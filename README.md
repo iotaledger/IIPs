@@ -25,7 +25,7 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 
 ## List of IIPs
 
- - Last updated: 2026-03-20
+ - Last updated: 2026-04-28
  - The _Status_ of a IIP reflects its current state with respect to its progression to being supported on the IOTA Mainnet.
    - `Draft` IIPs are work in progress. They may or may not have a working implementation on a testnet.
    - `Proposed` IIPs are demonstrated to have a working implementation on the IOTA Devnet or Testnet.
@@ -38,13 +38,14 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 | \# | Title                                                    | Description                                                                        | Type      | Layer     | Status   |
 |----|----------------------------------------------------------|------------------------------------------------------------------------------------|-----------|-----------|----------|
 | 1  | [IIP Process](iips/IIP-0001/iip-0001.md)                 | Purpose and guidelines of the contribution framework                               | Process   | \-        | Active   |
-| 2  | [Starfish Consensus Protocol](iips/IIP-0002/iip-0002.md) | A DAG-based consensus protocol improving liveness and efficiency                   | Standards | Core      | Proposed |
+| 2  | [Starfish Consensus Protocol](iips/IIP-0002/iip-0002.md) | A DAG-based consensus protocol improving liveness and efficiency                   | Standards | Core      | Active   |
 | 3  | [Sequencer Improvements](iips/IIP-0003/iip-0003.md)      | Improved sequencing algorithm for reducing the number of transaction cancellations | Standards | Core      | Active   |
 | 5  | [Move View Functions](iips/IIP-0005/iip-0005.md)         | A standardized interface for application-specific queries to on-chain state        | Standards | Interface | Draft    |
 | 7  | [Validator Scoring Mechanism](iips/IIP-0007/IIP-0007.md) | An automated and standardized system for monitoring validator behavior and scores  | Standards | Core      | Draft    |
 | 8  | [Dynamic Minimum Commission based on the Validator's Voting Power per Epoch](iips/IIP-0008/IIP-0008.md) | A dynamic minimum validator commission rate set to the validator's voting power percentage to prevent stake hoarding and promote decentralization  | Standards | Core      | Active  |
-| 9  | [Abstract IOTA Accounts](iips/IIP-0009/IIP-0009.md) | Abstract accounts on IOTA enable smart-contract-based authentication of addresses.  | Standards | Core      | Proposed    |
-| 10  | [Package Metadata](iips/IIP-0010/IIP-0010.md) | Immutable on-chain object that provides trusted metadata about Move packages during execution  | Standards | Core      | Proposed    |
+| 9  | [Abstract IOTA Accounts](iips/IIP-0009/IIP-0009.md)      | Abstract accounts on IOTA enable smart-contract-based authentication of addresses. | Standards | Core      | Proposed  |
+| 10 | [Package Metadata](iips/IIP-0010/IIP-0010.md)            | Immutable on-chain object that provides trusted metadata about Move packages during execution  | Standards | Core  | Proposed    |
+| 11 | [Core Move View Functions](iips/IIP-0011/IIP-0011.md)    | Move view functions - definition and specification at language level.              | Standards | Core      | Proposed  |
 
 ## Need help?
 
