@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#6b7280"/>
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    .node-label { font-size: 13px; fill: #1f2937; text-anchor: middle; }
+    .row-label  { font-size: 13px; fill: #374151; font-weight: 600; }
+    .annot      { font-size: 11px; fill: #2563eb; text-anchor: middle; font-style: italic; }
+    .footnote   { font-size: 12px; fill: #1f2937; }
+  </style>
+
+  <!-- Row labels -->
+  <text x="20" y="85"  class="row-label">Base Starfish</text>
+  <text x="20" y="102" class="row-label">(5 rounds)</text>
+
+  <text x="20" y="255" class="row-label">Starfish Speed</text>
+  <text x="20" y="272" class="row-label">(4–5 rounds)</text>
+
+  <!-- ===== Base Starfish ===== -->
+  <g>
+    <circle cx="180" cy="95" r="38" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
+    <text x="180" y="91"  class="node-label">Trans-</text>
+    <text x="180" y="107" class="node-label">actions</text>
+  </g>
+  <line x1="220" y1="95" x2="262" y2="95" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <g>
+    <circle cx="300" cy="95" r="38" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="300" y="99" class="node-label">Acks</text>
+  </g>
+  <line x1="340" y1="95" x2="382" y2="95" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <g>
+    <circle cx="420" cy="95" r="38" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="420" y="99" class="node-label">Leader</text>
+  </g>
+  <line x1="460" y1="95" x2="502" y2="95" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <g>
+    <circle cx="540" cy="95" r="38" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="540" y="99" class="node-label">Votes</text>
+  </g>
+  <line x1="580" y1="95" x2="622" y2="95" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <g>
+    <circle cx="660" cy="95" r="38" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
+    <text x="660" y="91"  class="node-label">Certifi-</text>
+    <text x="660" y="107" class="node-label">cates</text>
+  </g>
+
+  <!-- ===== Starfish Speed ===== -->
+  <!-- Acks above main line -->
+  <g>
+    <circle cx="300" cy="195" r="28" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="300" y="199" class="node-label">Acks</text>
+  </g>
+
+  <!-- Transactions -->
+  <g>
+    <circle cx="180" cy="265" r="38" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
+    <text x="180" y="261" class="node-label">Trans-</text>
+    <text x="180" y="277" class="node-label">actions</text>
+  </g>
+
+  <!-- Trans → Acks (curve up-right) -->
+  <path d="M 213 246 Q 245 215 275 207" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)"/>
+  <!-- Acks → Leader (curve down-right) -->
+  <path d="M 325 207 Q 360 215 388 245" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)"/>
+
+  <!-- Trans → Leader direct -->
+  <line x1="220" y1="265" x2="382" y2="265" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- Leader -->
+  <g>
+    <circle cx="420" cy="265" r="38" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="420" y="269" class="node-label">Leader</text>
+  </g>
+
+  <!-- Leader → Strong votes -->
+  <line x1="460" y1="265" x2="502" y2="265" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowhead-blue)"/>
+
+  <!-- Strong Votes -->
+  <g>
+    <circle cx="540" cy="265" r="38" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="540" y="261" class="node-label">Strong</text>
+    <text x="540" y="277" class="node-label">votes</text>
+  </g>
+  <text x="540" y="322" class="annot">vote + data availability</text>
+
+  <!-- Strong votes → Certs -->
+  <line x1="580" y1="265" x2="622" y2="265" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- Certificates -->
+  <g>
+    <circle cx="660" cy="265" r="38" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
+    <text x="660" y="261" class="node-label">Certifi-</text>
+    <text x="660" y="277" class="node-label">cates</text>
+  </g>
+
+  <!-- Footnotes -->
+  <text x="40" y="345" class="footnote">• Strong vote = vote + data-availability attestation</text>
+  <text x="40" y="365" class="footnote">• Best case: 5 rounds → 4 rounds; worst case: fall back to base Starfish</text>
+</svg>
