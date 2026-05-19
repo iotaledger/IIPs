@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" font-family="Helvetica, Arial, sans-serif">
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
       <polygon points="0 0, 10 3, 0 6" fill="#6b7280"/>
@@ -9,7 +9,7 @@
   </defs>
 
   <style>
-    text { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    text { font-family: Helvetica, Arial, sans-serif; }
     .node-label { font-size: 13px; fill: #1f2937; text-anchor: middle; }
     .row-label  { font-size: 13px; fill: #374151; font-weight: 600; }
     .annot      { font-size: 11px; fill: #2563eb; text-anchor: middle; font-style: italic; }
