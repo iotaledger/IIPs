@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Page not found - The Iota Improvement Proposal (IIP) Book</title>
-        <base href="/">
+        <title>IIP-12 Starfish Speed Consensus Protocol - The Iota Improvement Proposal (IIP) Book</title>
 
 
         <!-- Custom HTML head -->
@@ -13,33 +12,33 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="favicon-8114d1fc.png">
-        <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
-        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-0392ca55.css">
+        <link rel="stylesheet" href="../../css/chrome-fc474251.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
 
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "";
+            const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-c06d470d.js";
+            window.path_to_searchindex_js = "../../searchindex-c06d470d.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-750f00e4.js"></script>
+        <script src="../../toc-750f00e4.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -106,7 +105,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,7 +140,7 @@
                     <h1 class="menu-title">The Iota Improvement Proposal (IIP) Book</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -175,13 +174,62 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <pre>
+iip: 12
+title: Starfish Speed Consensus Protocol
+description: Optimistic transaction sequencing extension for Starfish that reduces commit latency
+author: Nikita Polianskii (@polinikita) <nikita.polianskii@iota.org>, Ilia Vorobev (@VorobyevIlya) <ilia.vorobev@iota.org>
+discussions-to: https://github.com/iotaledger/IIPs/discussions/46
+status: Draft
+type: Standards Track
+layer: Core
+created: 2026-05-18
+requires: 2
+
+<h2 id="abstract"><a class="header" href="#abstract">Abstract</a></h2>
+<p>Starfish Speed is an optimistic extension of <a href="../IIP-0002/iip-0002.html">Starfish</a>. Each voter attaches a <em>strong vote</em> to its round-(r+1) vote for the round-r leader, attesting that the voter has the full payload of the leader block and of every block the leader acknowledges. A quorum of such strong votes lets the leader’s acknowledged payloads be sequenced at commit time, instead of waiting for separate data-availability certificates to accumulate. The commit rule is extended with a metastate that distinguishes <em>optimistic</em> commits (which sequence the leader’s acknowledged payloads immediately) from <em>standard</em> commits (which behave as in base Starfish).</p>
+<h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
+<p>Unlike its predecessors (e.g. Mysticeti), Starfish decouples block headers from payloads and only sequences a payload after a Data Availability Certificate (DAC) is observed. Each acknowledged payload must therefore wait at least one extra round for its DAC to accumulate. In the happy case, however, the leader and most honest voters already hold the payloads the leader acknowledges, so this extra wait is pure latency overhead.</p>
+<p>Starfish Speed removes that overhead on the optimistic path while preserving Starfish’s safety and liveness guarantees: payloads in <code>L.acks</code> are sequenced at the same latency as the base commit of <code>L</code> — matching Mysticeti’s per-payload latency. When the optimistic conditions are not met, the protocol falls back to base Starfish behaviour.</p>
+<p>In effect, Starfish Speed combines the best of both protocols: it inherits Starfish’s robustness — Reed-Solomon-encoded payload dissemination and the push-based DAG that decouples headers from transactions — while matching Mysticeti’s commit latency in the happy case.</p>
+<p><img src="pipeline-base-vs-starfish-speed.svg" alt="Base Starfish vs. Starfish Speed pipeline"></p>
+<h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
+<p>Starfish Speed modifies Starfish in the following places:</p>
+<ul>
+<li><strong>Block Header.</strong> A <code>strongVote</code> field is added. In a round-(r+1) block voting for the round-r leader <code>L</code>, the strong vote <em>attests to data availability</em> iff the voter holds the full payload of <code>L</code> and of all blocks in <code>L.acks</code>; otherwise it does not. The commit rules depend only on this attestation; the on-wire encoding is an implementation detail.</li>
+<li><strong>Pacemaker.</strong> Block creation gains an optimistic strong path: before a tunable timeout <code>δ_ST</code>, a party may create its block once it has <code>L</code>’s payload, all payloads in <code>L.acks</code>, and either 2f+1 attesting strong votes for the previous leader or a skip-pattern quorum. After <code>δ_ST</code>, the base-Starfish weak path applies. The hard timeout (<code>δ_LT = 2Δ</code>) and catch-up rule are unchanged.</li>
+<li><strong>Strong Quorum Certificate (StrongQC).</strong> A round-(r+2) block carries a StrongQC for <code>L_r</code> iff its causal history contains 2f+1 round-(r+1) blocks from distinct parties that vote for <code>L_r</code> with strong votes attesting to data availability. A <em>strong blame quorum</em> (2f+1 round-(r+1) voters for <code>L_r</code> whose strong votes do not attest) is mutually exclusive with a strong vote quorum.</li>
+<li><strong>Slot Metastates.</strong> <code>Commit</code> slots gain a metastate: <code>opt</code> if a quorum of StrongQCs is observed at round r+2, <code>std</code> if a strong blame quorum is observed at round r+1, otherwise <code>pend</code>. <code>pend</code> slots are committed (they never become <code>Skip</code>) but block sequencing until the indirect rule resolves them to <code>opt</code> or <code>std</code> using the next committed anchor.</li>
+<li><strong>Sequencing.</strong> For <code>Commit(std)</code> slots, append <code>hist_DA(L)</code> as in base Starfish. For <code>Commit(opt)</code> slots, append <code>hist_DA(L)</code> then <code>L.acks</code>. Sequencing stops at the first <code>Commit(pend)</code> or <code>Undecided</code> slot.</li>
+</ul>
+<p>Starfish Speed is gated by a protocol flag (<code>consensus_starfish_speed</code>) and activated together with the new block header version (<code>BlockHeaderV2</code>) and commit message version (<code>Commit V3</code>). Wrong-version blocks and commits are rejected when the flag state does not match.</p>
+<h2 id="rationale"><a class="header" href="#rationale">Rationale</a></h2>
+<ul>
+<li><strong>Strong vote semantics.</strong> Requiring the voter to hold <code>L.payload</code> and every payload in <code>L.acks</code> makes a StrongQC equivalent to a DAC for all acknowledged payloads: at least f+1 honest parties already hold them at commit time.</li>
+<li><strong>Mutual exclusivity of strong quorums.</strong> Quorum intersection and the f-Byzantine bound make strong-vote and strong-blame quorums mutually exclusive, giving a deterministic <code>opt</code>/<code>std</code>/<code>pend</code> classification without dispute resolution.</li>
+<li><strong><code>pend</code> metastate.</strong> A <code>pend</code> slot is committed but non-final. It blocks sequencing like <code>Undecided</code>, but unlike <code>Undecided</code> it serves as a committed anchor for the indirect rule, avoiding cascading-undecided.</li>
+<li><strong>Two-tier pacemaker.</strong> The optimistic timeout <code>δ_ST</code> prevents a single slow validator from indefinitely blocking block creation; the weak fallback restores base-Starfish progress conditions, so liveness reduces to the base-Starfish liveness argument.</li>
+</ul>
+<h2 id="backwards-compatibility"><a class="header" href="#backwards-compatibility">Backwards Compatibility</a></h2>
+<p>Starfish Speed is not compatible with Starfish at the block-header, commit-message, or linearization level: <code>BlockHeaderV2</code> carries the new <code>strongVote</code> field, <code>Commit V3</code> carries the metastate annotations, and <code>Commit(opt)</code> slots sequence <code>L.acks</code> immediately whereas base Starfish would defer them.</p>
+<p><strong>Mitigation.</strong> Activation is atomic via the <code>consensus_starfish_speed</code> protocol flag at an upgrade boundary; block and commit versions are validated against the flag. When the flag is disabled, behaviour is identical to <a href="../IIP-0002/iip-0002.html">IIP-2</a>.</p>
+<h2 id="test-cases"><a class="header" href="#test-cases">Test Cases</a></h2>
+<p>In addition to the existing Starfish test suite, the implementation should cover: correct computation of <code>strongVote</code> (including empty <code>L.acks</code> and missing-payload cases); direct classification into <code>Commit(opt)</code>, <code>Commit(std)</code>, and <code>Commit(pend)</code> for the corresponding DAG patterns; indirect resolution of <code>pend</code> slots via anchors; the mutual-exclusivity invariant; and slow-validator scenarios where the optimistic path degrades to the weak fallback without harming liveness.</p>
+<h2 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h2>
+<p>A reference implementation is available on the <a href="https://github.com/iotaledger/iota/tree/consensus/feat/starfish-speed"><code>consensus/feat/starfish-speed</code></a> branch of <code>iotaledger/iota</code>. It extends the existing Starfish consensus crate with <code>BlockHeaderV2</code>, <code>Commit V3</code>, strong-vote computation, the optimistic linearizer path, and the <code>consensus_starfish_speed</code> protocol flag.</p>
+<p>The figure below compares base Starfish (left half of each panel) with Starfish Speed (right half) on a 19-validator network. Block commit latency is roughly unchanged (left panel, p50 ≈ 181 ms in both regimes), while transaction commit latency drops from ≈ 206 ms (p50) under base Starfish to ≈ 174 ms under Starfish Speed — the ~15% optimistic-path win expected from folding the data-availability acknowledgment into the leader vote.</p>
+<p><img src="./benchmark-starfish-vs-starfish-speed.jpg" alt="image"></p>
+<h2 id="copyright"><a class="header" href="#copyright">Copyright</a></h2>
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+</ilia.vorobev@iota.org></nikita.polianskii@iota.org></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../iips/IIP-0010/IIP-0010.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
 
                         <div style="clear: both"></div>
@@ -190,6 +238,9 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../iips/IIP-0010/IIP-0010.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
             </nav>
 
@@ -208,13 +259,13 @@
         </script>
 
 
-        <script src="elasticlunr-ef4e11c1.min.js"></script>
-        <script src="mark-09e88c2c.min.js"></script>
-        <script src="searcher-09f2665d.js"></script>
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
 
-        <script src="clipboard-1626706a.min.js"></script>
-        <script src="highlight-abc7f01d.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-c22b7243.js"></script>
 
         <!-- Custom JS scripts -->
 
