@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-c06d470d.js";
+            window.path_to_searchindex_js = "searchindex-e2a8cbf9.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-750f00e4.js"></script>
+        <script src="toc-058a78f2.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -193,7 +193,7 @@
 <p>You may find more information about the IIP Process in <a href="#iip-1-iip-process">IIP-1</a>.</p>
 <h2 id="list-of-iips"><a class="header" href="#list-of-iips">List of IIPs</a></h2>
 <ul>
-<li>Last updated: 2026-06-08</li>
+<li>Last updated: 2026-06-10</li>
 <li>The <em>Status</em> of a IIP reflects its current state with respect to its progression to being supported on the IOTA Mainnet.
 <ul>
 <li><code>Draft</code> IIPs are work in progress. They may or may not have a working implementation on a testnet.</li>
@@ -219,6 +219,7 @@
 <tr><td>8</td><td><a href="#iip-8-dynamic-minimum-commission-based-on-the-validators-voting-power-per-epoch">Dynamic Minimum Commission based on the Validator’s Voting Power per Epoch</a></td><td>A dynamic minimum validator commission rate set to the validator’s voting power percentage to prevent stake hoarding and promote decentralization</td><td>Standards</td><td>Core</td><td>Active</td></tr>
 <tr><td>9</td><td><a href="#iip-9-abstract-iota-accounts">Abstract IOTA Accounts</a></td><td>Abstract accounts on IOTA enable smart-contract-based authentication of addresses.</td><td>Standards</td><td>Core</td><td>Proposed</td></tr>
 <tr><td>10</td><td><a href="#iip-10-package-metadata">Package Metadata</a></td><td>Immutable on-chain object that provides trusted metadata about Move packages during execution</td><td>Standards</td><td>Core</td><td>Proposed</td></tr>
+<tr><td>11</td><td><a href="#iip-11-core-move-view-functions">Core Move View Functions</a></td><td>Move view functions - definition and specification at language level.</td><td>Standards</td><td>Core</td><td>Proposed</td></tr>
 <tr><td>12</td><td><a href="#iip-12-starfish-speed-consensus-protocol">Starfish Speed Consensus Protocol</a></td><td>Optimistic transaction sequencing extension for Starfish that reduces commit latency</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
 </tbody>
 </table>
@@ -1392,6 +1393,766 @@ public fun account_type(self: &amp;AuthenticatorMetadataV1): TypeName { }
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 </valerii.reutov@iota.org></mirko.zichichi@iota.org></pre>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="iip-11-core-move-view-functions"><a href="#iip-11-core-move-view-functions" class="header">IIP-11 Core Move View Functions</a></h1>
+<pre>
+iip: 11
+title: Core Move View Functions
+description: Move view functions - definition and specification at the language level
+author: Lorenzo Benetollo (@lollobene) <lorenzo.benetollo@iota.org>, Mirko Zichichi (@miker83z) <mirko.zichichi@iota.org>
+discussions-to: https://github.com/iotaledger/IIPs/discussions/42
+status: Draft
+type: Standards Track
+layer (*only required for Standards Track): Core
+created: 2026-04-27
+requires (*optional): IIP-0010
+replaces (*optional): None
+
+<h2 id="abstract-7"><a class="header" href="#abstract-7">Abstract</a></h2>
+<p>This proposal introduces <em>view functions</em> in Move, a class of functions that are guaranteed not to modify the persistent global storage. A view function is explicitly annotated using <code>#[view]</code> and its properties are statically enforced by the compiler and by the IOTA bytecode verifier.</p>
+<p>These functions are suitable for reading from the ledger state and/or executing code in Move with no effect on the state. This proposal, then, aims to improve developer ergonomics, enable safer APIs, and allow optimized execution paths for read-only on-chain queries.</p>
+<h2 id="motivation-8"><a class="header" href="#motivation-8">Motivation</a></h2>
+<p>Smart contract developers frequently need to query on-chain storage without modifying it. Today, this is harder than it should be:</p>
+<ul>
+<li>No distinction between read-only and state-modifying functions. If your dApp depends on a third-party Move package, you have no way to know whether calling a function will mutate state without manually auditing its code. This increases the risk of unintended storage mutations. See Nemo Protocol <a href="https://olivine-hydrofoil-637.notion.site/Nemo-Security-Incident-Cause-Process-and-Fund-Tracing-Report-V1-1-26a6b8723d8a80e29cb8cb48fe1390f2">security incident</a></li>
+<li>No clear or lightweight way to read on-chain data. If you deploy a Move package with custom object types, reading their fields requires building a custom indexer, a heavyweight solution for what should be a simple query.</li>
+</ul>
+<p>Introducing view functions provides:</p>
+<ul>
+<li>A clear and <strong>statically enforced</strong> guarantee of read-only behavior</li>
+<li>Improved developer experience and reduced risk of unintended state mutations</li>
+<li>Opportunities for optimized execution and seamless <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0005/iip-0005.md">integration with RPC</a> interfaces and query-oriented tooling, enabling off-chain evaluation without gas costs or signature requirements</li>
+</ul>
+<h2 id="background"><a class="header" href="#background">Background</a></h2>
+<p>In Move on IOTA, the original <a href="https://developers.diem.com/papers/diem-move-a-language-with-programmable-resources/2019-06-18.pdf">Move Resource model</a> has evolved into an <strong>object-centric</strong> model, in which structs with the <code>key</code> ability and a required <code>UID</code> (as a first field) represent on-chain objects.</p>
+<p>As a consequence, functions must <strong>explicitly declare as parameters all the objects they operate on</strong>, either by value or by reference, while the virtual machine is responsible for loading and deserializing these objects at execution time.</p>
+<p>This eliminates implicit global storage access and requires all storage interactions to occur via <strong>explicitly</strong> <strong>passed</strong> <strong>objects</strong>.</p>
+<p>Additionally, in Move on IOTA, object creation is not exposed as a language-level primitive.</p>
+<p>Instead, it is realized through framework-provided functions (e.g., <code>object::new</code>) combined with transfer operations.</p>
+<p><strong>This design implies that object creation is not performed by any language primitive but is delegated to the platform framework. More generally, as we will see in the next section, the storage can be modified either by language primitives or by framework functions.</strong></p>
+<h3 id="what-can-alter-the-storage"><a class="header" href="#what-can-alter-the-storage">What can alter the storage?</a></h3>
+<p>As previously mentioned, in Move on IOTA, objects are the only entities stored in persistent storage. Consequently, all changes to the global storage occur through operations on objects.</p>
+<p>These operations include:</p>
+<ul>
+<li>
+<p><strong>Creating an object</strong>, which adds a new object to the storage</p>
+<pre><code class="language-move">public struct Object has key, store { id: UID, value: u64 }
+public struct Wrapper has key { id: UID, o: Object }
+
+public fun create(addr: address, ctx: &amp;mut TxContext) {
+    let o = Object { id: object::new(ctx), val: 44 };
+    transfer::transfer(o, addr);
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Modifying an object’s fields</strong>, which updates its internal state</p>
+<pre><code class="language-move">public fun edit(o:  &amp;mut  Object, new_val:  u64) {
+    o.val = new_val;
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Deleting an object</strong>, which removes it from storage</p>
+<pre><code class="language-move">public fun delete(o:  Object) {
+    let  Object  { id, val }  = o;
+    object::delete(id);
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Transferring an object</strong>, which changes its ownership</p>
+<pre><code class="language-move">public fun transfer(o:  Object, recipient: address) {
+    transfer::public_transfer(o, recipient)
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Sharing an object</strong>, which changes its accessibility model</p>
+<pre><code class="language-move">public fun share(value:  u64, ctx:  &amp;mut  TxContext) {
+    transfer::share_object(Object  { id:  object::new(ctx), value })
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Wrapping an object</strong></p>
+<pre><code class="language-move">public fun wrap(o:  Object, ctx:  &amp;mut  TxContext) {
+    transfer::transfer(Wrapper  { id:  object::new(ctx), o }, ctx.sender());
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Adding or removing dynamic fields</strong>, which modify associated dynamic fields</p>
+<pre><code class="language-move">public fun add_dynamic_field(self:  &amp;mut  Object, value:  bool) {
+    dynamic_field::add(&amp;mut  self.id,  b"dynamic_field", value);
+}
+</code></pre>
+</li>
+</ul>
+<h3 id="by-value-semantics"><a class="header" href="#by-value-semantics">By-value semantics</a></h3>
+<p>In this proposal, an argument or return value, whether an object or a native type, is considered to be passed <em>by value</em> when ownership is transferred, rather than when access is provided through a reference.</p>
+<p>In Move, passing an argument by value consumes it: ownership moves to the callee, and the original binding can no longer be used. References (<code>&amp;T</code> and <code>&amp;mut T</code>) instead provide access to a value without transferring ownership.</p>
+<p>This distinction matters for view functions because accepting or returning an IOTA object by value would move ownership of a persistent object, which can enable ownership changes, wrapping, deletion, or other state-modifying behavior. For this reason, view functions cannot accept or return IOTA objects by value.</p>
+<h2 id="specification-7"><a class="header" href="#specification-7">Specification</a></h2>
+<h3 id="definition"><a class="header" href="#definition">Definition</a></h3>
+<p>Based on the premise that global storage is solely constituted by objects in IOTA, then:</p>
+<p>A <em>view function</em> is a Move function that does not mutate any IOTA object and that returns at least one value. Returned values MUST NOT be IOTA objects, or values that could contain IOTA objects, by value. Returned values MUST NOT contain mutable references.</p>
+<p>View functions MAY return immutable references (<code>&amp;T</code>). Such references remain subject to the normal Move borrow checker rules, which determine whether a returned reference is well formed and whether it can outlive its source.</p>
+<h3 id="rules"><a class="header" href="#rules">Rules</a></h3>
+<p>A compliant <em>view function</em> is declared using the <code>#[view]</code> attribute, which enforces static validation by the compiler and by IOTA bytecode verifier:</p>
+<ul>
+<li>It MUST NOT create, update, or delete IOTA objects</li>
+<li>It MUST return at least one value. Returned values MUST NOT be IOTA objects, or values that could contain IOTA objects, by value.</li>
+<li>It MUST NOT return mutable references</li>
+<li>It MAY return immutable references</li>
+<li>It MAY read from the global storage through a reference to an object</li>
+<li>It MUST NOT have mutable references as parameters</li>
+<li>It MAY perform pure computation</li>
+</ul>
+<h3 id="annotation"><a class="header" href="#annotation">Annotation</a></h3>
+<p>A view function is declared as:</p>
+<pre><code class="language-move">#[view]
+public fun foo(...): T {
+    ...
+}
+</code></pre>
+<p>The <code>#[view]</code> attribute defines a <strong>compiler- and verifier-enforced invariant</strong>.</p>
+<h3 id="nested-function-calls"><a class="header" href="#nested-function-calls"><strong>Nested Function Calls</strong></a></h3>
+<p>A function annotated with <code>#[view]</code> MAY call other functions, including <code>private</code> and <code>native</code> ones.</p>
+<p>In IOTA Move, access to global storage is mediated through objects. As a result, modifications to the global storage require access to objects by value or through mutable references.</p>
+<p>Given the constraints imposed on view functions, it follows that a view function cannot pass the necessary inputs to call functions that perform state-modifying operations.</p>
+<p>In particular, any function that requires:</p>
+<ul>
+<li>an object passed by value</li>
+<li>a mutable reference</li>
+<li>access to <code>&amp;mut TxContext</code></li>
+</ul>
+<p>cannot be invoked from a view function, as such values cannot be constructed or obtained within the constraints of a view execution.</p>
+<p>Therefore, even if a view function calls other functions, those calls are effectively restricted to functions whose parameter and return types are compatible with view constraints. This ensures that state-modifying operations cannot be reached, even transitively.</p>
+<p>View-specific validation is based on function signatures. It does not add a separate body-level provenance analysis for immutable reference returns; normal Move borrow checking continues to enforce reference safety. In practice, an immutable reference returned by a view function must be derived from a valid reference source, such as an immutable reference parameter, a field borrowed from such a parameter, or an immutable reference obtained by reading a dynamic object field.</p>
+<h3 id="invocation-of-view-functions"><a class="header" href="#invocation-of-view-functions">Invocation of View Functions</a></h3>
+<p>Any other function MAY invoke a function annotated with <code>#[view]</code>, so the constraints imposed on view functions MUST hold independently of the caller context.</p>
+<p>Although a view function may not receive objects by value or as mutable references, allowing mutable references to <strong>non-object</strong> types would still enable indirect state modifications. For example, a mutable reference to an object’s field could be passed to a view function, allowing modification of the object’s field through that reference.</p>
+<p>To <strong>prevent</strong> such <strong>indirect mutations</strong>, view functions MUST NOT accept mutable references (<code>&amp;mut T</code>) as parameters, regardless of whether <code>T</code> is an object type.</p>
+<p>For example:</p>
+<pre><code class="language-move">public fun edit(mut o: Object, new_val: u64): Object {
+    edit_u64_by_ref(&amp;mut o.val, new_val);
+    o
+}
+
+// NON view function because it can mutate an object field
+public fun edit_u64_by_ref(val: &amp;mut u64, new_val: u64): u64 {
+    let old_val = *val;
+    *val = new_val;
+    old_val
+}
+</code></pre>
+<h3 id="function-signature-constraints"><a class="header" href="#function-signature-constraints"><strong>Function Signature Constraints</strong></a></h3>
+<p>A function annotated with <code>#[view]</code> MUST satisfy:</p>
+<ul>
+<li>
+<p><strong>Visibility</strong></p>
+<ul>
+<li>MUST be <code>public</code> or <code>public entry</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Return values</strong></p>
+<ul>
+<li>MUST return at least one value</li>
+<li>MUST NOT return IOTA objects, or values that could contain IOTA objects, by value</li>
+<li>MUST NOT return mutable references</li>
+<li>MAY return immutable references (<code>&amp;T</code>)</li>
+</ul>
+</li>
+<li>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>MUST NOT include IOTA objects, or values that could contain IOTA objects, passed by value</li>
+<li>MAY include immutable references (<code>&amp;T</code>)</li>
+<li>MAY include primitive types or user-defined types with at least one of the <code>Copy</code> or <code>Drop</code> abilities (<strong>neither IOTA objects nor types that can contain objects by value</strong>)</li>
+<li><strong>References</strong>
+<ul>
+<li>MUST NOT use mutable references (<code>&amp;mut T</code>) to any type, including <code>TxContext</code></li>
+<li>MAY use immutable references</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Type Parameters</strong></p>
+<ul>
+<li>Type parameters used by value in parameters or return values MUST have at least one of the <code>Copy</code> or <code>Drop</code> abilities</li>
+<li>Type parameters used only behind immutable references, or not used in the function signature, MAY be unconstrained</li>
+</ul>
+</li>
+</ul>
+<h3 id="native-functions"><a class="header" href="#native-functions"><strong>Native Functions</strong></a></h3>
+<p>Native functions MAY be annotated with <code>#[view]</code>.</p>
+<h2 id="compiler-behavior"><a class="header" href="#compiler-behavior"><strong>Compiler Behavior</strong></a></h2>
+<h3 id="errors"><a class="header" href="#errors"><strong>Errors</strong></a></h3>
+<p>The compiler MUST reject any source function annotated with <code>#[view]</code> that violates the specification.</p>
+<p>The publish-time bytecode verifier MUST also reject package metadata that marks a function as a view function when the compiled function signature violates these constraints. This prevents packages from bypassing source-level checks by publishing bytecode or MVIR directly.</p>
+<p>Example:</p>
+<blockquote>
+<p>This function <strong>does</strong> <strong>not</strong> satisfy view constraints, and it can not be marked as <code>#[view]</code>.</p>
+</blockquote>
+<h3 id="warnings"><a class="header" href="#warnings"><strong>Warnings</strong></a></h3>
+<p>The compiler MAY emit a warning when a function:</p>
+<ul>
+<li>satisfies all constraints of a view function</li>
+<li>is not annotated with #[view]</li>
+</ul>
+<p>Example:</p>
+<blockquote>
+<p>This function satisfies view constraints and could be marked as <code>#[view]</code>.</p>
+</blockquote>
+<h2 id="execution-semantics"><a class="header" href="#execution-semantics"><strong>Execution Semantics</strong></a></h2>
+<p>View functions MAY be executed in a read-only execution mode:</p>
+<ul>
+<li>Without submitting a transaction</li>
+<li>Without requiring a signature</li>
+<li>Without consuming gas (implementation-dependent)</li>
+</ul>
+<p>Execution MUST be deterministic:</p>
+<ul>
+<li>Given the same state, the function MUST return the same result</li>
+</ul>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="valid-examples"><a class="header" href="#valid-examples">Valid Examples</a></h3>
+<pre><code class="language-move">module view_functions::valid {
+    public struct Object has key {
+        id: iota::object::UID,
+    }
+
+    public struct Wrapped has copy, drop, store {
+        value: u64,
+    }
+
+    public struct Wrapped2 has copy, drop, store {
+        value: u64,
+    }
+
+    public struct GenericObject2&lt;T: store, U: store&gt; has key {
+        id: iota::object::UID,
+        inner: T,
+        other: U,
+    }
+
+    public struct GenericObject&lt;T: store&gt; has key, store {
+        id: iota::object::UID,
+        inner: T,
+    }
+
+    public struct NonObject has copy, drop, store {
+        value: u64,
+    }
+
+    public struct NonObjectTemplated&lt;T: copy + drop + store&gt; has copy, drop, store {
+        inner: T,
+    }
+
+    public struct Receiving&lt;phantom T: key&gt; has copy, drop, store {
+        id: iota::object::ID,
+    }
+
+    public struct DynamicField has copy, drop, store {
+        value: u64,
+    }
+
+    #[view]
+    public entry fun entry_view(a: u64): u64 {
+        a
+    }
+
+    #[view]
+    public fun object_immutable_ref(object: &amp;Object): u64 {
+        let _ = object;
+        0
+    }
+
+    #[view]
+    public fun primitive_by_value(object: &amp;Object, val: u8): u64 {
+        let _ = object;
+        val as u64
+    }
+
+    #[view]
+    public fun multiple_generic_object_immutable_ref(generic_object: &amp;GenericObject2&lt;Wrapped, Wrapped2&gt;): u64 {
+        generic_object.inner.value + generic_object.other.value
+    }
+
+    #[view]
+    public fun wrapped_by_value(wrapped: Wrapped) : bool {
+        wrapped.value &gt; 44
+    }
+
+    #[view]
+    public fun generic_object_immutable_ref(generic_object: &amp;GenericObject&lt;Wrapped&gt;): u64 {
+        generic_object.inner.value
+    }
+
+    #[view]
+    public fun template_immutable_ref&lt;T: store&gt;(generic_object: &amp;GenericObject&lt;T&gt;): u64 {
+        let _ = generic_object;
+        0
+    }
+
+    #[view]
+    public fun template_key_store_immutable_ref&lt;T: key + store&gt;(generic_object: &amp;GenericObject&lt;T&gt;): u64 {
+        let _ = generic_object;
+        0
+    }
+
+    #[view]
+    public fun template_copy_drop_store_immutable_ref&lt;T: copy + drop + store&gt;(
+        generic_object: &amp;GenericObject&lt;T&gt;,
+    ): u64 {
+        let _ = generic_object;
+        0
+    }
+
+    #[view]
+    public fun non_object_by_value(value: NonObject): u64 {
+        value.value
+    }
+
+    #[view]
+    public fun templated_non_object_by_value&lt;T: copy + drop + store&gt;(
+        value: NonObjectTemplated&lt;T&gt;,
+    ): u64 {
+        let _ = value;
+        0
+    }
+
+    #[view]
+    public fun option_primitive_by_value(value: Option&lt;u64&gt;): u64 {
+        if (value.is_some()) {
+            value.destroy_some()
+        } else {
+            0
+        }
+    }
+
+    #[view]
+    public fun option_non_object_by_value(value: Option&lt;NonObject&gt;): u64 {
+        if (value.is_some()) {
+            value.destroy_some().value
+        } else {
+            0
+        }
+    }
+
+    #[view]
+    public fun option_generic_object_immutable_ref(value: &amp;Option&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        let _ = value;
+        0
+    }
+
+    #[view]
+    public fun vector_primitive_by_value(value: vector&lt;u64&gt;): u64 {
+        value.length()
+    }
+
+    #[view]
+    public fun vector_non_object_by_value(value: vector&lt;NonObject&gt;): u64 {
+        value.length()
+    }
+
+    #[view]
+    public fun vector_generic_object_immutable_ref(value: &amp;vector&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        value.length()
+    }
+
+    #[view]
+    public fun receiving_immutable_ref(receiving: &amp;Receiving&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        let _ = receiving;
+        0
+    }
+
+    #[view]
+    public fun copy_type_param&lt;T: copy&gt;(value: T): T {
+        value
+    }
+
+    #[view]
+    public fun drop_type_param&lt;T: drop&gt;(value: T): u64 {
+        let _ = value;
+        0
+    }
+
+    #[view]
+    public fun copy_store_type_param&lt;T: copy + store&gt;(value: T): T {
+        value
+    }
+
+    #[view]
+    public fun primitive_tuple_return(a: u64, b: bool): (u64, bool) {
+        (a, b)
+    }
+
+    #[view]
+    public fun returns_generic_obj_reference(
+        input: &amp;GenericObject&lt;Wrapped&gt;,
+    ): &amp;GenericObject&lt;Wrapped&gt; {
+        input
+    }
+
+    #[view]
+    public fun returns_u64_reference(input: &amp;u64): &amp;u64 {
+        input
+    }
+
+    #[view]
+    public fun returns_tuple_with_reference(input: &amp;u64): (&amp;u64, u64) {
+        (input, 0)
+    }
+
+    #[view]
+    public fun returns_dynamic_field_reference(object: &amp;Object, name: u64): &amp;DynamicField {
+        iota::dynamic_field::borrow&lt;u64, DynamicField&gt;(&amp;object.id, name)
+    }
+
+    #[view]
+    public native fun native_view(v: u64): u64;
+
+    #[view]
+    public native fun native_view_no_param(): bool;
+
+    #[view]
+    public native fun native_type_param&lt;T: key&gt;(): u64;
+
+    #[view]
+    public fun unused_unconstrained_type_param&lt;T&gt;(): u64 {
+        0
+    }
+
+    #[view]
+    public fun unconstrained_type_param_by_ref&lt;T&gt;(x: &amp;T): u64 {
+        let _ = x;
+        0
+    }
+
+    #[view]
+    public fun unconstrained_type_param_vector_by_ref&lt;T&gt;(x: &amp;vector&lt;T&gt;): u64 {
+        let _ = x;
+        0
+    }
+
+    #[view]
+    public fun unconstrained_type_param_option_by_ref&lt;T&gt;(x: &amp;Option&lt;T&gt;): u64 {
+        let _ = x;
+        0
+    }
+}
+</code></pre>
+<h3 id="non-valid-examples"><a class="header" href="#non-valid-examples">Non Valid Examples</a></h3>
+<pre><code class="language-move">module view_functions::invalid {
+    se std::ascii::{String, char};
+
+    public struct Object has key {
+        id: iota::object::UID,
+    }
+
+    public struct Wrapped has copy, drop, store {
+        value: u64,
+    }
+
+    public struct StoreOnly has store {
+        value: u64,
+    }
+
+    public struct GenericObject&lt;T: store&gt; has key, store {
+        id: iota::object::UID,
+        inner: T,
+    }
+
+    public struct GenericObject2&lt;T: store, U: store&gt; has key {
+        id: iota::object::UID,
+        inner: T,
+        other: U,
+    }
+
+    public struct Wrapper&lt;T&gt; has key {
+        id: iota::object::UID,
+        wrapped: vector&lt;T&gt;,
+    }
+
+    public struct NonObject has copy, drop, store {
+        value: u64,
+    }
+
+    public struct NonObjectTemplated&lt;T: copy + drop + store&gt; has copy, drop, store {
+        inner: T,
+    }
+
+    public struct Receiving&lt;phantom T: key&gt; has copy, drop, store {
+        id: iota::object::ID,
+    }
+
+    #[view]
+    fun private_view(): u64 {
+        0
+    }
+
+    #[view]
+    public fun no_return() {
+        abort 0
+    }
+
+    #[view]
+    public fun object_by_value(_object: Object): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun object_mutable_ref(_object_ref: &amp;mut Object): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun concrete_multiple_object_by_value(
+        _generic_object2: GenericObject2&lt;Wrapped, Wrapped&gt;,
+    ): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun generic_object_by_value(_generic_object: GenericObject&lt;Wrapped&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun generic_object_mutable_ref(_object_ref: &amp;mut GenericObject&lt;Wrapped&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun template_by_value&lt;T: store&gt;(_generic_object: GenericObject&lt;T&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun template_key_store_by_value&lt;T: key + store&gt;(
+        _generic_object: GenericObject&lt;T&gt;,
+        _wrapper: &amp;Wrapper&lt;T&gt;,
+    ): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun template_copy_drop_store_by_value&lt;T: copy + drop + store&gt;(
+        _generic_object: GenericObject&lt;T&gt;,
+    ): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun mutable_primitive_param(mut value: u64): u64 {
+        value = value + 1;
+        value
+    }
+
+    #[view]
+    public fun mutable_non_object_param(mut value: NonObject): u64 {
+        value.value = value.value + 1;
+        value.value
+    }
+
+    #[view]
+    public fun update_string_by_value(mut name: String): String {
+        name.push_char(char(43));
+        name
+    }
+
+    #[view]
+    public fun direct_key_store_type_param_by_value&lt;T: key + store&gt;(_generic_object: T): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun unconstrained_type_param_by_value&lt;T&gt;(_value: T): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun store_only_by_value(value: StoreOnly): u64 {
+        let StoreOnly { value } = value;
+        value
+    }
+
+    #[view]
+    public fun store_only_type_param_by_value&lt;T: store&gt;(_value: T): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_object_by_value(_value: Option&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_template_object_by_value&lt;T: key + store&gt;(_value: Option&lt;T&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_vector_object_by_value(_value: Option&lt;vector&lt;GenericObject&lt;Wrapped&gt;&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_option_object_by_value(_value: vector&lt;Option&lt;GenericObject&lt;Wrapped&gt;&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_primitive_mutable_ref(_value: &amp;mut Option&lt;u64&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_non_object_mutable_ref(_value: &amp;mut Option&lt;NonObject&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_object_mutable_ref(_value: &amp;mut Option&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_object_by_value(_value: vector&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_template_object_by_value&lt;T: key + store&gt;(_value: vector&lt;T&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_primitive_mutable_ref(_value: &amp;mut vector&lt;u64&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_non_object_mutable_ref(_value: &amp;mut vector&lt;NonObject&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_object_mutable_ref(_value: &amp;mut vector&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun receiving_by_value(_receiving: Receiving&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun receiving_mutable_ref(_receiving: &amp;mut Receiving&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun tx_context_mutable_ref(_ctx: &amp;mut iota::tx_context::TxContext): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_object(): Object {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_object_vector(): vector&lt;GenericObject&lt;Wrapped&gt;&gt; {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_option_object(): Option&lt;GenericObject&lt;Wrapped&gt;&gt; {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_store_only(): StoreOnly {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_option_store_only(): Option&lt;StoreOnly&gt; {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_key_store_type_param&lt;T: key + store&gt;(): T {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_store_only_type_param&lt;T: store&gt;(): T {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_tuple_with_object(): (u64, GenericObject&lt;Wrapped&gt;) {
+        abort 0
+    }
+
+    #[view]
+    public native fun returns_mut_reference(input: &amp;u64): &amp;mut u64;
+
+    #[view]
+    public native fun store_only_type_param&lt;T: store&gt;(x: T): u64;
+
+    #[view]
+    public native fun native_mut_ref(x: &amp;mut u64): u64;
+}
+</code></pre>
+<h2 id="rationale-7"><a class="header" href="#rationale-7"><strong>Rationale</strong></a></h2>
+<p>This proposal introduces an explicit abstraction for read-only execution, similar to “view” or “pure” functions in other smart contract platforms.</p>
+<p>Key design decisions:</p>
+<ul>
+<li><strong>Explicit annotation (</strong><code>#[view]</code><strong>)</strong>
+<ul>
+<li>Avoids ambiguity and enables static guarantees</li>
+</ul>
+</li>
+<li><strong>Static enforcement</strong>
+<ul>
+<li>Ensures safety at compile time</li>
+</ul>
+</li>
+<li><strong>Recursive restriction</strong>
+<ul>
+<li>Guarantees no indirect storage mutation</li>
+</ul>
+</li>
+<li><strong>Separation of constraints</strong>
+<ul>
+<li>Improves clarity and maintainability</li>
+</ul>
+</li>
+</ul>
+<h2 id="backwards-compatibility-8"><a class="header" href="#backwards-compatibility-8"><strong>Backwards Compatibility</strong></a></h2>
+<p>This proposal is backwards-compatible:</p>
+<ul>
+<li>Existing code is unaffected</li>
+<li>The <code>#[view]</code> attribute is optional</li>
+</ul>
+<p>However:</p>
+<ul>
+<li>Adding <code>#[view]</code> introduces stricter constraints that are enforced at compile time</li>
+<li>Removing <code>#[view]</code> may affect client expectations, particularly for off-chain execution and API usage</li>
+</ul>
+<p>This proposal builds on <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a> by treating <code>#[view]</code> as package metadata. View functions are included in <code>PackageMetadata</code>, similarly to how authenticator functions are currently exposed. This allows clients and tooling to reliably discover view functions without requiring additional static analysis.</p>
+<p>Such metadata exposure does not affect program semantics but improves interoperability with RPC layers and developer tooling.</p>
+<p>This proposal is also compatible with the RPC interface proposed in <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0005/iip-0005.md">IIP-0005</a>. IIP-0005 defines an off-chain interface for invoking Move view functions and explicitly allows that interface to be limited to a future explicit on-chain read API. Under this proposal, that explicit API is the set of functions annotated with <code>#[view]</code> and accepted by the compiler, so implementations of IIP-0005 SHOULD use this proposal’s validation rules and <code>PackageMetadata</code> exposure when determining which functions are callable as view functions.</p>
+<h2 id="copyright-7"><a class="header" href="#copyright-7">Copyright</a></h2>
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+</mirko.zichichi@iota.org></lorenzo.benetollo@iota.org></pre>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="iip-12-starfish-speed-consensus-protocol"><a href="#iip-12-starfish-speed-consensus-protocol" class="header">IIP-12 Starfish Speed Consensus Protocol</a></h1>
 <pre>
 iip: 12
@@ -1405,14 +2166,14 @@ layer: Core
 created: 2026-05-18
 requires: 2
 
-<h2 id="abstract-7"><a class="header" href="#abstract-7">Abstract</a></h2>
+<h2 id="abstract-8"><a class="header" href="#abstract-8">Abstract</a></h2>
 <p>Starfish Speed is an optimistic extension of <a href="#iip-2-starfish-consensus-protocol">Starfish</a>. Each voter attaches a <em>strong vote</em> to its round-(r+1) vote for the round-r leader, attesting that the voter has the full payload of the leader block and of every block the leader acknowledges. A quorum of such strong votes lets the leader’s acknowledged payloads be sequenced at commit time, instead of waiting for separate data-availability certificates to accumulate. The commit rule is extended with a metastate that distinguishes <em>optimistic</em> commits (which sequence the leader’s acknowledged payloads immediately) from <em>standard</em> commits (which behave as in base Starfish).</p>
-<h2 id="motivation-8"><a class="header" href="#motivation-8">Motivation</a></h2>
+<h2 id="motivation-9"><a class="header" href="#motivation-9">Motivation</a></h2>
 <p>Unlike its predecessors (e.g. Mysticeti), Starfish decouples block headers from payloads and only sequences a payload after a Data Availability Certificate (DAC) is observed. Each acknowledged payload must therefore wait at least one extra round for its DAC to accumulate. In the happy case, however, the leader and most honest voters already hold the payloads the leader acknowledges, so this extra wait is pure latency overhead.</p>
 <p>Starfish Speed removes that overhead on the optimistic path while preserving Starfish’s safety and liveness guarantees: payloads in <code>L.acks</code> are sequenced at the same latency as the base commit of <code>L</code> — matching Mysticeti’s per-payload latency. When the optimistic conditions are not met, the protocol falls back to base Starfish behaviour.</p>
 <p>In effect, Starfish Speed combines the best of both protocols: it inherits Starfish’s robustness — Reed-Solomon-encoded payload dissemination and the push-based DAG that decouples headers from transactions — while matching Mysticeti’s commit latency in the happy case.</p>
 <p><img src="iips/IIP-0012/pipeline-base-vs-starfish-speed.svg" alt="Base Starfish vs. Starfish Speed pipeline"></p>
-<h2 id="specification-7"><a class="header" href="#specification-7">Specification</a></h2>
+<h2 id="specification-8"><a class="header" href="#specification-8">Specification</a></h2>
 <p>Starfish Speed modifies Starfish in the following places:</p>
 <ul>
 <li><strong>Block Header.</strong> A <code>strongVote</code> field is added. In a round-(r+1) block voting for the round-r leader <code>L</code>, the strong vote <em>attests to data availability</em> iff the voter holds the full payload of <code>L</code> and of all blocks in <code>L.acks</code>; otherwise it does not. The commit rules depend only on this attestation; the on-wire encoding is an implementation detail.</li>
@@ -1422,14 +2183,14 @@ requires: 2
 <li><strong>Sequencing.</strong> For <code>Commit(std)</code> slots, append <code>hist_DA(L)</code> as in base Starfish. For <code>Commit(opt)</code> slots, append <code>hist_DA(L)</code> then <code>L.acks</code>. Sequencing stops at the first <code>Commit(pend)</code> or <code>Undecided</code> slot.</li>
 </ul>
 <p>Starfish Speed is gated by a protocol flag (<code>consensus_starfish_speed</code>) and activated together with the new block header version (<code>BlockHeaderV2</code>) and commit message version (<code>Commit V3</code>). Wrong-version blocks and commits are rejected when the flag state does not match.</p>
-<h2 id="rationale-7"><a class="header" href="#rationale-7">Rationale</a></h2>
+<h2 id="rationale-8"><a class="header" href="#rationale-8">Rationale</a></h2>
 <ul>
 <li><strong>Strong vote semantics.</strong> Requiring the voter to hold <code>L.payload</code> and every payload in <code>L.acks</code> makes a StrongQC equivalent to a DAC for all acknowledged payloads: at least f+1 honest parties already hold them at commit time.</li>
 <li><strong>Mutual exclusivity of strong quorums.</strong> Quorum intersection and the f-Byzantine bound make strong-vote and strong-blame quorums mutually exclusive, giving a deterministic <code>opt</code>/<code>std</code>/<code>pend</code> classification without dispute resolution.</li>
 <li><strong><code>pend</code> metastate.</strong> A <code>pend</code> slot is committed but non-final. It blocks sequencing like <code>Undecided</code>, but unlike <code>Undecided</code> it serves as a committed anchor for the indirect rule, avoiding cascading-undecided.</li>
 <li><strong>Two-tier pacemaker.</strong> The optimistic timeout <code>δ_ST</code> prevents a single slow validator from indefinitely blocking block creation; the weak fallback restores base-Starfish progress conditions, so liveness reduces to the base-Starfish liveness argument.</li>
 </ul>
-<h2 id="backwards-compatibility-8"><a class="header" href="#backwards-compatibility-8">Backwards Compatibility</a></h2>
+<h2 id="backwards-compatibility-9"><a class="header" href="#backwards-compatibility-9">Backwards Compatibility</a></h2>
 <p>Starfish Speed is not compatible with Starfish at the block-header, commit-message, or linearization level: <code>BlockHeaderV2</code> carries the new <code>strongVote</code> field, <code>Commit V3</code> carries the metastate annotations, and <code>Commit(opt)</code> slots sequence <code>L.acks</code> immediately whereas base Starfish would defer them.</p>
 <p><strong>Mitigation.</strong> Activation is atomic via the <code>consensus_starfish_speed</code> protocol flag at an upgrade boundary; block and commit versions are validated against the flag. When the flag is disabled, behaviour is identical to <a href="#iip-2-starfish-consensus-protocol">IIP-2</a>.</p>
 <h2 id="test-cases-5"><a class="header" href="#test-cases-5">Test Cases</a></h2>
@@ -1438,7 +2199,7 @@ requires: 2
 <p>A reference implementation is available on the <a href="https://github.com/iotaledger/iota/tree/consensus/feat/starfish-speed"><code>consensus/feat/starfish-speed</code></a> branch of <code>iotaledger/iota</code>. It extends the existing Starfish consensus crate with <code>BlockHeaderV2</code>, <code>Commit V3</code>, strong-vote computation, the optimistic linearizer path, and the <code>consensus_starfish_speed</code> protocol flag.</p>
 <p>The figure below compares base Starfish (left half of each panel) with Starfish Speed (right half) on a 19-validator network. Block commit latency is roughly unchanged (left panel, p50 ≈ 181 ms in both regimes), while transaction commit latency drops from ≈ 206 ms (p50) under base Starfish to ≈ 174 ms under Starfish Speed — the ~15% optimistic-path win expected from folding the data-availability acknowledgment into the leader vote.</p>
 <p><img src="iips/IIP-0012/benchmark-starfish-vs-starfish-speed.jpg" alt="image"></p>
-<h2 id="copyright-7"><a class="header" href="#copyright-7">Copyright</a></h2>
+<h2 id="copyright-8"><a class="header" href="#copyright-8">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 </ilia.vorobev@iota.org></nikita.polianskii@iota.org></pre>
 

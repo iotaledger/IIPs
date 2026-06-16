@@ -1,0 +1,992 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>IIP-11 Core Move View Functions - The Iota Improvement Proposal (IIP) Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-0392ca55.css">
+        <link rel="stylesheet" href="../../css/chrome-fc474251.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex-e2a8cbf9.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-058a78f2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Iota Improvement Proposal (IIP) Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <pre>
+iip: 11
+title: Core Move View Functions
+description: Move view functions - definition and specification at the language level
+author: Lorenzo Benetollo (@lollobene) <lorenzo.benetollo@iota.org>, Mirko Zichichi (@miker83z) <mirko.zichichi@iota.org>
+discussions-to: https://github.com/iotaledger/IIPs/discussions/42
+status: Draft
+type: Standards Track
+layer (*only required for Standards Track): Core
+created: 2026-04-27
+requires (*optional): IIP-0010
+replaces (*optional): None
+
+<h2 id="abstract"><a class="header" href="#abstract">Abstract</a></h2>
+<p>This proposal introduces <em>view functions</em> in Move, a class of functions that are guaranteed not to modify the persistent global storage. A view function is explicitly annotated using <code>#[view]</code> and its properties are statically enforced by the compiler and by the IOTA bytecode verifier.</p>
+<p>These functions are suitable for reading from the ledger state and/or executing code in Move with no effect on the state. This proposal, then, aims to improve developer ergonomics, enable safer APIs, and allow optimized execution paths for read-only on-chain queries.</p>
+<h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
+<p>Smart contract developers frequently need to query on-chain storage without modifying it. Today, this is harder than it should be:</p>
+<ul>
+<li>No distinction between read-only and state-modifying functions. If your dApp depends on a third-party Move package, you have no way to know whether calling a function will mutate state without manually auditing its code. This increases the risk of unintended storage mutations. See Nemo Protocol <a href="https://olivine-hydrofoil-637.notion.site/Nemo-Security-Incident-Cause-Process-and-Fund-Tracing-Report-V1-1-26a6b8723d8a80e29cb8cb48fe1390f2">security incident</a></li>
+<li>No clear or lightweight way to read on-chain data. If you deploy a Move package with custom object types, reading their fields requires building a custom indexer, a heavyweight solution for what should be a simple query.</li>
+</ul>
+<p>Introducing view functions provides:</p>
+<ul>
+<li>A clear and <strong>statically enforced</strong> guarantee of read-only behavior</li>
+<li>Improved developer experience and reduced risk of unintended state mutations</li>
+<li>Opportunities for optimized execution and seamless <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0005/iip-0005.md">integration with RPC</a> interfaces and query-oriented tooling, enabling off-chain evaluation without gas costs or signature requirements</li>
+</ul>
+<h2 id="background"><a class="header" href="#background">Background</a></h2>
+<p>In Move on IOTA, the original <a href="https://developers.diem.com/papers/diem-move-a-language-with-programmable-resources/2019-06-18.pdf">Move Resource model</a> has evolved into an <strong>object-centric</strong> model, in which structs with the <code>key</code> ability and a required <code>UID</code> (as a first field) represent on-chain objects.</p>
+<p>As a consequence, functions must <strong>explicitly declare as parameters all the objects they operate on</strong>, either by value or by reference, while the virtual machine is responsible for loading and deserializing these objects at execution time.</p>
+<p>This eliminates implicit global storage access and requires all storage interactions to occur via <strong>explicitly</strong> <strong>passed</strong> <strong>objects</strong>.</p>
+<p>Additionally, in Move on IOTA, object creation is not exposed as a language-level primitive.</p>
+<p>Instead, it is realized through framework-provided functions (e.g., <code>object::new</code>) combined with transfer operations.</p>
+<p><strong>This design implies that object creation is not performed by any language primitive but is delegated to the platform framework. More generally, as we will see in the next section, the storage can be modified either by language primitives or by framework functions.</strong></p>
+<h3 id="what-can-alter-the-storage"><a class="header" href="#what-can-alter-the-storage">What can alter the storage?</a></h3>
+<p>As previously mentioned, in Move on IOTA, objects are the only entities stored in persistent storage. Consequently, all changes to the global storage occur through operations on objects.</p>
+<p>These operations include:</p>
+<ul>
+<li>
+<p><strong>Creating an object</strong>, which adds a new object to the storage</p>
+<pre><code class="language-move">public struct Object has key, store { id: UID, value: u64 }
+public struct Wrapper has key { id: UID, o: Object }
+
+public fun create(addr: address, ctx: &amp;mut TxContext) {
+    let o = Object { id: object::new(ctx), val: 44 };
+    transfer::transfer(o, addr);
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Modifying an object’s fields</strong>, which updates its internal state</p>
+<pre><code class="language-move">public fun edit(o:  &amp;mut  Object, new_val:  u64) {
+    o.val = new_val;
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Deleting an object</strong>, which removes it from storage</p>
+<pre><code class="language-move">public fun delete(o:  Object) {
+    let  Object  { id, val }  = o;
+    object::delete(id);
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Transferring an object</strong>, which changes its ownership</p>
+<pre><code class="language-move">public fun transfer(o:  Object, recipient: address) {
+    transfer::public_transfer(o, recipient)
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Sharing an object</strong>, which changes its accessibility model</p>
+<pre><code class="language-move">public fun share(value:  u64, ctx:  &amp;mut  TxContext) {
+    transfer::share_object(Object  { id:  object::new(ctx), value })
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Wrapping an object</strong></p>
+<pre><code class="language-move">public fun wrap(o:  Object, ctx:  &amp;mut  TxContext) {
+    transfer::transfer(Wrapper  { id:  object::new(ctx), o }, ctx.sender());
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Adding or removing dynamic fields</strong>, which modify associated dynamic fields</p>
+<pre><code class="language-move">public fun add_dynamic_field(self:  &amp;mut  Object, value:  bool) {
+    dynamic_field::add(&amp;mut  self.id,  b"dynamic_field", value);
+}
+</code></pre>
+</li>
+</ul>
+<h3 id="by-value-semantics"><a class="header" href="#by-value-semantics">By-value semantics</a></h3>
+<p>In this proposal, an argument or return value, whether an object or a native type, is considered to be passed <em>by value</em> when ownership is transferred, rather than when access is provided through a reference.</p>
+<p>In Move, passing an argument by value consumes it: ownership moves to the callee, and the original binding can no longer be used. References (<code>&amp;T</code> and <code>&amp;mut T</code>) instead provide access to a value without transferring ownership.</p>
+<p>This distinction matters for view functions because accepting or returning an IOTA object by value would move ownership of a persistent object, which can enable ownership changes, wrapping, deletion, or other state-modifying behavior. For this reason, view functions cannot accept or return IOTA objects by value.</p>
+<h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
+<h3 id="definition"><a class="header" href="#definition">Definition</a></h3>
+<p>Based on the premise that global storage is solely constituted by objects in IOTA, then:</p>
+<p>A <em>view function</em> is a Move function that does not mutate any IOTA object and that returns at least one value. Returned values MUST NOT be IOTA objects, or values that could contain IOTA objects, by value. Returned values MUST NOT contain mutable references.</p>
+<p>View functions MAY return immutable references (<code>&amp;T</code>). Such references remain subject to the normal Move borrow checker rules, which determine whether a returned reference is well formed and whether it can outlive its source.</p>
+<h3 id="rules"><a class="header" href="#rules">Rules</a></h3>
+<p>A compliant <em>view function</em> is declared using the <code>#[view]</code> attribute, which enforces static validation by the compiler and by IOTA bytecode verifier:</p>
+<ul>
+<li>It MUST NOT create, update, or delete IOTA objects</li>
+<li>It MUST return at least one value. Returned values MUST NOT be IOTA objects, or values that could contain IOTA objects, by value.</li>
+<li>It MUST NOT return mutable references</li>
+<li>It MAY return immutable references</li>
+<li>It MAY read from the global storage through a reference to an object</li>
+<li>It MUST NOT have mutable references as parameters</li>
+<li>It MAY perform pure computation</li>
+</ul>
+<h3 id="annotation"><a class="header" href="#annotation">Annotation</a></h3>
+<p>A view function is declared as:</p>
+<pre><code class="language-move">#[view]
+public fun foo(...): T {
+    ...
+}
+</code></pre>
+<p>The <code>#[view]</code> attribute defines a <strong>compiler- and verifier-enforced invariant</strong>.</p>
+<h3 id="nested-function-calls"><a class="header" href="#nested-function-calls"><strong>Nested Function Calls</strong></a></h3>
+<p>A function annotated with <code>#[view]</code> MAY call other functions, including <code>private</code> and <code>native</code> ones.</p>
+<p>In IOTA Move, access to global storage is mediated through objects. As a result, modifications to the global storage require access to objects by value or through mutable references.</p>
+<p>Given the constraints imposed on view functions, it follows that a view function cannot pass the necessary inputs to call functions that perform state-modifying operations.</p>
+<p>In particular, any function that requires:</p>
+<ul>
+<li>an object passed by value</li>
+<li>a mutable reference</li>
+<li>access to <code>&amp;mut TxContext</code></li>
+</ul>
+<p>cannot be invoked from a view function, as such values cannot be constructed or obtained within the constraints of a view execution.</p>
+<p>Therefore, even if a view function calls other functions, those calls are effectively restricted to functions whose parameter and return types are compatible with view constraints. This ensures that state-modifying operations cannot be reached, even transitively.</p>
+<p>View-specific validation is based on function signatures. It does not add a separate body-level provenance analysis for immutable reference returns; normal Move borrow checking continues to enforce reference safety. In practice, an immutable reference returned by a view function must be derived from a valid reference source, such as an immutable reference parameter, a field borrowed from such a parameter, or an immutable reference obtained by reading a dynamic object field.</p>
+<h3 id="invocation-of-view-functions"><a class="header" href="#invocation-of-view-functions">Invocation of View Functions</a></h3>
+<p>Any other function MAY invoke a function annotated with <code>#[view]</code>, so the constraints imposed on view functions MUST hold independently of the caller context.</p>
+<p>Although a view function may not receive objects by value or as mutable references, allowing mutable references to <strong>non-object</strong> types would still enable indirect state modifications. For example, a mutable reference to an object’s field could be passed to a view function, allowing modification of the object’s field through that reference.</p>
+<p>To <strong>prevent</strong> such <strong>indirect mutations</strong>, view functions MUST NOT accept mutable references (<code>&amp;mut T</code>) as parameters, regardless of whether <code>T</code> is an object type.</p>
+<p>For example:</p>
+<pre><code class="language-move">public fun edit(mut o: Object, new_val: u64): Object {
+    edit_u64_by_ref(&amp;mut o.val, new_val);
+    o
+}
+
+// NON view function because it can mutate an object field
+public fun edit_u64_by_ref(val: &amp;mut u64, new_val: u64): u64 {
+    let old_val = *val;
+    *val = new_val;
+    old_val
+}
+</code></pre>
+<h3 id="function-signature-constraints"><a class="header" href="#function-signature-constraints"><strong>Function Signature Constraints</strong></a></h3>
+<p>A function annotated with <code>#[view]</code> MUST satisfy:</p>
+<ul>
+<li>
+<p><strong>Visibility</strong></p>
+<ul>
+<li>MUST be <code>public</code> or <code>public entry</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Return values</strong></p>
+<ul>
+<li>MUST return at least one value</li>
+<li>MUST NOT return IOTA objects, or values that could contain IOTA objects, by value</li>
+<li>MUST NOT return mutable references</li>
+<li>MAY return immutable references (<code>&amp;T</code>)</li>
+</ul>
+</li>
+<li>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>MUST NOT include IOTA objects, or values that could contain IOTA objects, passed by value</li>
+<li>MAY include immutable references (<code>&amp;T</code>)</li>
+<li>MAY include primitive types or user-defined types with at least one of the <code>Copy</code> or <code>Drop</code> abilities (<strong>neither IOTA objects nor types that can contain objects by value</strong>)</li>
+<li><strong>References</strong>
+<ul>
+<li>MUST NOT use mutable references (<code>&amp;mut T</code>) to any type, including <code>TxContext</code></li>
+<li>MAY use immutable references</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Type Parameters</strong></p>
+<ul>
+<li>Type parameters used by value in parameters or return values MUST have at least one of the <code>Copy</code> or <code>Drop</code> abilities</li>
+<li>Type parameters used only behind immutable references, or not used in the function signature, MAY be unconstrained</li>
+</ul>
+</li>
+</ul>
+<h3 id="native-functions"><a class="header" href="#native-functions"><strong>Native Functions</strong></a></h3>
+<p>Native functions MAY be annotated with <code>#[view]</code>.</p>
+<h2 id="compiler-behavior"><a class="header" href="#compiler-behavior"><strong>Compiler Behavior</strong></a></h2>
+<h3 id="errors"><a class="header" href="#errors"><strong>Errors</strong></a></h3>
+<p>The compiler MUST reject any source function annotated with <code>#[view]</code> that violates the specification.</p>
+<p>The publish-time bytecode verifier MUST also reject package metadata that marks a function as a view function when the compiled function signature violates these constraints. This prevents packages from bypassing source-level checks by publishing bytecode or MVIR directly.</p>
+<p>Example:</p>
+<blockquote>
+<p>This function <strong>does</strong> <strong>not</strong> satisfy view constraints, and it can not be marked as <code>#[view]</code>.</p>
+</blockquote>
+<h3 id="warnings"><a class="header" href="#warnings"><strong>Warnings</strong></a></h3>
+<p>The compiler MAY emit a warning when a function:</p>
+<ul>
+<li>satisfies all constraints of a view function</li>
+<li>is not annotated with #[view]</li>
+</ul>
+<p>Example:</p>
+<blockquote>
+<p>This function satisfies view constraints and could be marked as <code>#[view]</code>.</p>
+</blockquote>
+<h2 id="execution-semantics"><a class="header" href="#execution-semantics"><strong>Execution Semantics</strong></a></h2>
+<p>View functions MAY be executed in a read-only execution mode:</p>
+<ul>
+<li>Without submitting a transaction</li>
+<li>Without requiring a signature</li>
+<li>Without consuming gas (implementation-dependent)</li>
+</ul>
+<p>Execution MUST be deterministic:</p>
+<ul>
+<li>Given the same state, the function MUST return the same result</li>
+</ul>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="valid-examples"><a class="header" href="#valid-examples">Valid Examples</a></h3>
+<pre><code class="language-move">module view_functions::valid {
+    public struct Object has key {
+        id: iota::object::UID,
+    }
+
+    public struct Wrapped has copy, drop, store {
+        value: u64,
+    }
+
+    public struct Wrapped2 has copy, drop, store {
+        value: u64,
+    }
+
+    public struct GenericObject2&lt;T: store, U: store&gt; has key {
+        id: iota::object::UID,
+        inner: T,
+        other: U,
+    }
+
+    public struct GenericObject&lt;T: store&gt; has key, store {
+        id: iota::object::UID,
+        inner: T,
+    }
+
+    public struct NonObject has copy, drop, store {
+        value: u64,
+    }
+
+    public struct NonObjectTemplated&lt;T: copy + drop + store&gt; has copy, drop, store {
+        inner: T,
+    }
+
+    public struct Receiving&lt;phantom T: key&gt; has copy, drop, store {
+        id: iota::object::ID,
+    }
+
+    public struct DynamicField has copy, drop, store {
+        value: u64,
+    }
+
+    #[view]
+    public entry fun entry_view(a: u64): u64 {
+        a
+    }
+
+    #[view]
+    public fun object_immutable_ref(object: &amp;Object): u64 {
+        let _ = object;
+        0
+    }
+
+    #[view]
+    public fun primitive_by_value(object: &amp;Object, val: u8): u64 {
+        let _ = object;
+        val as u64
+    }
+
+    #[view]
+    public fun multiple_generic_object_immutable_ref(generic_object: &amp;GenericObject2&lt;Wrapped, Wrapped2&gt;): u64 {
+        generic_object.inner.value + generic_object.other.value
+    }
+
+    #[view]
+    public fun wrapped_by_value(wrapped: Wrapped) : bool {
+        wrapped.value &gt; 44
+    }
+
+    #[view]
+    public fun generic_object_immutable_ref(generic_object: &amp;GenericObject&lt;Wrapped&gt;): u64 {
+        generic_object.inner.value
+    }
+
+    #[view]
+    public fun template_immutable_ref&lt;T: store&gt;(generic_object: &amp;GenericObject&lt;T&gt;): u64 {
+        let _ = generic_object;
+        0
+    }
+
+    #[view]
+    public fun template_key_store_immutable_ref&lt;T: key + store&gt;(generic_object: &amp;GenericObject&lt;T&gt;): u64 {
+        let _ = generic_object;
+        0
+    }
+
+    #[view]
+    public fun template_copy_drop_store_immutable_ref&lt;T: copy + drop + store&gt;(
+        generic_object: &amp;GenericObject&lt;T&gt;,
+    ): u64 {
+        let _ = generic_object;
+        0
+    }
+
+    #[view]
+    public fun non_object_by_value(value: NonObject): u64 {
+        value.value
+    }
+
+    #[view]
+    public fun templated_non_object_by_value&lt;T: copy + drop + store&gt;(
+        value: NonObjectTemplated&lt;T&gt;,
+    ): u64 {
+        let _ = value;
+        0
+    }
+
+    #[view]
+    public fun option_primitive_by_value(value: Option&lt;u64&gt;): u64 {
+        if (value.is_some()) {
+            value.destroy_some()
+        } else {
+            0
+        }
+    }
+
+    #[view]
+    public fun option_non_object_by_value(value: Option&lt;NonObject&gt;): u64 {
+        if (value.is_some()) {
+            value.destroy_some().value
+        } else {
+            0
+        }
+    }
+
+    #[view]
+    public fun option_generic_object_immutable_ref(value: &amp;Option&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        let _ = value;
+        0
+    }
+
+    #[view]
+    public fun vector_primitive_by_value(value: vector&lt;u64&gt;): u64 {
+        value.length()
+    }
+
+    #[view]
+    public fun vector_non_object_by_value(value: vector&lt;NonObject&gt;): u64 {
+        value.length()
+    }
+
+    #[view]
+    public fun vector_generic_object_immutable_ref(value: &amp;vector&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        value.length()
+    }
+
+    #[view]
+    public fun receiving_immutable_ref(receiving: &amp;Receiving&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        let _ = receiving;
+        0
+    }
+
+    #[view]
+    public fun copy_type_param&lt;T: copy&gt;(value: T): T {
+        value
+    }
+
+    #[view]
+    public fun drop_type_param&lt;T: drop&gt;(value: T): u64 {
+        let _ = value;
+        0
+    }
+
+    #[view]
+    public fun copy_store_type_param&lt;T: copy + store&gt;(value: T): T {
+        value
+    }
+
+    #[view]
+    public fun primitive_tuple_return(a: u64, b: bool): (u64, bool) {
+        (a, b)
+    }
+
+    #[view]
+    public fun returns_generic_obj_reference(
+        input: &amp;GenericObject&lt;Wrapped&gt;,
+    ): &amp;GenericObject&lt;Wrapped&gt; {
+        input
+    }
+
+    #[view]
+    public fun returns_u64_reference(input: &amp;u64): &amp;u64 {
+        input
+    }
+
+    #[view]
+    public fun returns_tuple_with_reference(input: &amp;u64): (&amp;u64, u64) {
+        (input, 0)
+    }
+
+    #[view]
+    public fun returns_dynamic_field_reference(object: &amp;Object, name: u64): &amp;DynamicField {
+        iota::dynamic_field::borrow&lt;u64, DynamicField&gt;(&amp;object.id, name)
+    }
+
+    #[view]
+    public native fun native_view(v: u64): u64;
+
+    #[view]
+    public native fun native_view_no_param(): bool;
+
+    #[view]
+    public native fun native_type_param&lt;T: key&gt;(): u64;
+
+    #[view]
+    public fun unused_unconstrained_type_param&lt;T&gt;(): u64 {
+        0
+    }
+
+    #[view]
+    public fun unconstrained_type_param_by_ref&lt;T&gt;(x: &amp;T): u64 {
+        let _ = x;
+        0
+    }
+
+    #[view]
+    public fun unconstrained_type_param_vector_by_ref&lt;T&gt;(x: &amp;vector&lt;T&gt;): u64 {
+        let _ = x;
+        0
+    }
+
+    #[view]
+    public fun unconstrained_type_param_option_by_ref&lt;T&gt;(x: &amp;Option&lt;T&gt;): u64 {
+        let _ = x;
+        0
+    }
+}
+</code></pre>
+<h3 id="non-valid-examples"><a class="header" href="#non-valid-examples">Non Valid Examples</a></h3>
+<pre><code class="language-move">module view_functions::invalid {
+    se std::ascii::{String, char};
+
+    public struct Object has key {
+        id: iota::object::UID,
+    }
+
+    public struct Wrapped has copy, drop, store {
+        value: u64,
+    }
+
+    public struct StoreOnly has store {
+        value: u64,
+    }
+
+    public struct GenericObject&lt;T: store&gt; has key, store {
+        id: iota::object::UID,
+        inner: T,
+    }
+
+    public struct GenericObject2&lt;T: store, U: store&gt; has key {
+        id: iota::object::UID,
+        inner: T,
+        other: U,
+    }
+
+    public struct Wrapper&lt;T&gt; has key {
+        id: iota::object::UID,
+        wrapped: vector&lt;T&gt;,
+    }
+
+    public struct NonObject has copy, drop, store {
+        value: u64,
+    }
+
+    public struct NonObjectTemplated&lt;T: copy + drop + store&gt; has copy, drop, store {
+        inner: T,
+    }
+
+    public struct Receiving&lt;phantom T: key&gt; has copy, drop, store {
+        id: iota::object::ID,
+    }
+
+    #[view]
+    fun private_view(): u64 {
+        0
+    }
+
+    #[view]
+    public fun no_return() {
+        abort 0
+    }
+
+    #[view]
+    public fun object_by_value(_object: Object): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun object_mutable_ref(_object_ref: &amp;mut Object): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun concrete_multiple_object_by_value(
+        _generic_object2: GenericObject2&lt;Wrapped, Wrapped&gt;,
+    ): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun generic_object_by_value(_generic_object: GenericObject&lt;Wrapped&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun generic_object_mutable_ref(_object_ref: &amp;mut GenericObject&lt;Wrapped&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun template_by_value&lt;T: store&gt;(_generic_object: GenericObject&lt;T&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun template_key_store_by_value&lt;T: key + store&gt;(
+        _generic_object: GenericObject&lt;T&gt;,
+        _wrapper: &amp;Wrapper&lt;T&gt;,
+    ): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun template_copy_drop_store_by_value&lt;T: copy + drop + store&gt;(
+        _generic_object: GenericObject&lt;T&gt;,
+    ): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun mutable_primitive_param(mut value: u64): u64 {
+        value = value + 1;
+        value
+    }
+
+    #[view]
+    public fun mutable_non_object_param(mut value: NonObject): u64 {
+        value.value = value.value + 1;
+        value.value
+    }
+
+    #[view]
+    public fun update_string_by_value(mut name: String): String {
+        name.push_char(char(43));
+        name
+    }
+
+    #[view]
+    public fun direct_key_store_type_param_by_value&lt;T: key + store&gt;(_generic_object: T): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun unconstrained_type_param_by_value&lt;T&gt;(_value: T): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun store_only_by_value(value: StoreOnly): u64 {
+        let StoreOnly { value } = value;
+        value
+    }
+
+    #[view]
+    public fun store_only_type_param_by_value&lt;T: store&gt;(_value: T): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_object_by_value(_value: Option&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_template_object_by_value&lt;T: key + store&gt;(_value: Option&lt;T&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_vector_object_by_value(_value: Option&lt;vector&lt;GenericObject&lt;Wrapped&gt;&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_option_object_by_value(_value: vector&lt;Option&lt;GenericObject&lt;Wrapped&gt;&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_primitive_mutable_ref(_value: &amp;mut Option&lt;u64&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_non_object_mutable_ref(_value: &amp;mut Option&lt;NonObject&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun option_object_mutable_ref(_value: &amp;mut Option&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_object_by_value(_value: vector&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_template_object_by_value&lt;T: key + store&gt;(_value: vector&lt;T&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_primitive_mutable_ref(_value: &amp;mut vector&lt;u64&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_non_object_mutable_ref(_value: &amp;mut vector&lt;NonObject&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun vector_object_mutable_ref(_value: &amp;mut vector&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun receiving_by_value(_receiving: Receiving&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun receiving_mutable_ref(_receiving: &amp;mut Receiving&lt;GenericObject&lt;Wrapped&gt;&gt;): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun tx_context_mutable_ref(_ctx: &amp;mut iota::tx_context::TxContext): u64 {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_object(): Object {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_object_vector(): vector&lt;GenericObject&lt;Wrapped&gt;&gt; {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_option_object(): Option&lt;GenericObject&lt;Wrapped&gt;&gt; {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_store_only(): StoreOnly {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_option_store_only(): Option&lt;StoreOnly&gt; {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_key_store_type_param&lt;T: key + store&gt;(): T {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_store_only_type_param&lt;T: store&gt;(): T {
+        abort 0
+    }
+
+    #[view]
+    public fun returns_tuple_with_object(): (u64, GenericObject&lt;Wrapped&gt;) {
+        abort 0
+    }
+
+    #[view]
+    public native fun returns_mut_reference(input: &amp;u64): &amp;mut u64;
+
+    #[view]
+    public native fun store_only_type_param&lt;T: store&gt;(x: T): u64;
+
+    #[view]
+    public native fun native_mut_ref(x: &amp;mut u64): u64;
+}
+</code></pre>
+<h2 id="rationale"><a class="header" href="#rationale"><strong>Rationale</strong></a></h2>
+<p>This proposal introduces an explicit abstraction for read-only execution, similar to “view” or “pure” functions in other smart contract platforms.</p>
+<p>Key design decisions:</p>
+<ul>
+<li><strong>Explicit annotation (</strong><code>#[view]</code><strong>)</strong>
+<ul>
+<li>Avoids ambiguity and enables static guarantees</li>
+</ul>
+</li>
+<li><strong>Static enforcement</strong>
+<ul>
+<li>Ensures safety at compile time</li>
+</ul>
+</li>
+<li><strong>Recursive restriction</strong>
+<ul>
+<li>Guarantees no indirect storage mutation</li>
+</ul>
+</li>
+<li><strong>Separation of constraints</strong>
+<ul>
+<li>Improves clarity and maintainability</li>
+</ul>
+</li>
+</ul>
+<h2 id="backwards-compatibility"><a class="header" href="#backwards-compatibility"><strong>Backwards Compatibility</strong></a></h2>
+<p>This proposal is backwards-compatible:</p>
+<ul>
+<li>Existing code is unaffected</li>
+<li>The <code>#[view]</code> attribute is optional</li>
+</ul>
+<p>However:</p>
+<ul>
+<li>Adding <code>#[view]</code> introduces stricter constraints that are enforced at compile time</li>
+<li>Removing <code>#[view]</code> may affect client expectations, particularly for off-chain execution and API usage</li>
+</ul>
+<p>This proposal builds on <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a> by treating <code>#[view]</code> as package metadata. View functions are included in <code>PackageMetadata</code>, similarly to how authenticator functions are currently exposed. This allows clients and tooling to reliably discover view functions without requiring additional static analysis.</p>
+<p>Such metadata exposure does not affect program semantics but improves interoperability with RPC layers and developer tooling.</p>
+<p>This proposal is also compatible with the RPC interface proposed in <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0005/iip-0005.md">IIP-0005</a>. IIP-0005 defines an off-chain interface for invoking Move view functions and explicitly allows that interface to be limited to a future explicit on-chain read API. Under this proposal, that explicit API is the set of functions annotated with <code>#[view]</code> and accepted by the compiler, so implementations of IIP-0005 SHOULD use this proposal’s validation rules and <code>PackageMetadata</code> exposure when determining which functions are callable as view functions.</p>
+<h2 id="copyright"><a class="header" href="#copyright">Copyright</a></h2>
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+</mirko.zichichi@iota.org></lorenzo.benetollo@iota.org></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../iips/IIP-0010/IIP-0010.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../../iips/IIP-0012/iip-0012.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../iips/IIP-0010/IIP-0010.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../../iips/IIP-0012/iip-0012.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
