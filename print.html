@@ -16,8 +16,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e2a8cbf9.js";
+            window.path_to_searchindex_js = "searchindex-8de07a1a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-058a78f2.js"></script>
+        <script src="toc-fc6c2a6a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -175,7 +175,7 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <p><img src="logo_dark.svg" alt="image"></p>
+                        <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="logo_dark.svg" alt="image"><span class="img-wrapper"><img src="logo_dark.svg" alt="image"></span></label></p>
 <h1 id="iota-improvement-proposal-iip-repository"><a class="header" href="#iota-improvement-proposal-iip-repository">IOTA Improvement Proposal (IIP) Repository</a></h1>
 <p>IIPs are improvement proposals for bettering the IOTA technology stack.</p>
 <p>Building the IOTA ecosystem is a community effort, therefore we welcome anyone to propose, discuss and debate ideas that will later become formalized IIPs.</p>
@@ -204,7 +204,7 @@
 </ul>
 </li>
 </ul>
-<p><img src="iips/IIP-0001/process.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0001/process.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0001/process.svg" alt="image"></span></label></p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -219,8 +219,9 @@
 <tr><td>8</td><td><a href="#iip-8-dynamic-minimum-commission-based-on-the-validators-voting-power-per-epoch">Dynamic Minimum Commission based on the Validator’s Voting Power per Epoch</a></td><td>A dynamic minimum validator commission rate set to the validator’s voting power percentage to prevent stake hoarding and promote decentralization</td><td>Standards</td><td>Core</td><td>Active</td></tr>
 <tr><td>9</td><td><a href="#iip-9-abstract-iota-accounts">Abstract IOTA Accounts</a></td><td>Abstract accounts on IOTA enable smart-contract-based authentication of addresses.</td><td>Standards</td><td>Core</td><td>Proposed</td></tr>
 <tr><td>10</td><td><a href="#iip-10-package-metadata">Package Metadata</a></td><td>Immutable on-chain object that provides trusted metadata about Move packages during execution</td><td>Standards</td><td>Core</td><td>Proposed</td></tr>
-<tr><td>11</td><td><a href="#iip-11-core-move-view-functions">Core Move View Functions</a></td><td>Move view functions - definition and specification at language level.</td><td>Standards</td><td>Core</td><td>Proposed</td></tr>
+<tr><td>11</td><td><a href="#iip-11-core-move-view-functions">Core Move View Functions</a></td><td>Move view functions - definition and specification at language level.</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
 <tr><td>12</td><td><a href="#iip-12-starfish-speed-consensus-protocol">Starfish Speed Consensus Protocol</a></td><td>Optimistic transaction sequencing extension for Starfish that reduces commit latency</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
+<tr><td>13</td><td><a href="#iip-13-dynamic-module-metadata">Dynamic Module Metadata</a></td><td>Store package module metadata in dynamic fields so it can be extended without changing the package metadata object type</td><td>Standards</td><td>Core</td><td>Draft</td></tr>
 </tbody>
 </table>
 </div>
@@ -337,7 +338,7 @@ created: 2025-02-12
 </li>
 </ol>
 <h5 id="how-can-a-iip-transition-from-one-status-to-another"><a class="header" href="#how-can-a-iip-transition-from-one-status-to-another">How can a IIP transition from one status to another?</a></h5>
-<p><img src="iips/IIP-0001/process.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0001/process.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0001/process.svg" alt="image"></span></label></p>
 <p>A <code>Draft</code> IIP might be moved to <code>Deferred</code> status by the <em>IIP author(s)</em> when they are no longer working on the proposal, but plan to continue it in the future. <em>IIP editors</em> might also move any IIPs to  <code>Deferred</code> if the proposal is not making progress.</p>
 <p>A <code>Draft</code> IIP might be moved to <code>Withdrawn</code> status by the <em>IIP author(s)</em>.</p>
 <p>A <code>Draft</code> IIP might be moved to <code>Rejected</code> status by <em>IIP editor(s)</em> or <em>Core contributors</em> if it does not meet the appropriate IIP criteria, or no relevant progress has been demonstrated on the IIP for at least 3 years.</p>
@@ -574,9 +575,9 @@ In the case of both the existing sequencer and this proposal, transactions are p
 <h2 id="motivation-2"><a class="header" href="#motivation-2">Motivation</a></h2>
 <p>To understand the motivation for the sequencer improvements proposed here, consider the following example.</p>
 <p>The consensus module produces a commit containing the following set of transactions without regard for their exact ordering within the commit. The lettered blocks within each transaction indicate that the transaction writes to that shared object. In this example, we have four shared objects, <code>a</code>, <code>b</code>, <code>c</code> and <code>d</code>.</p>
-<p><img src="iips/IIP-0003/commit.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0003/commit.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0003/commit.svg" alt="image"></span></label></p>
 <p>These transactions can then be placed in descending order of gas price where transaction number 1 pays the highest gas price.</p>
-<p><img src="iips/IIP-0003/ordered.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0003/ordered.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0003/ordered.svg" alt="image"></span></label></p>
 <p>Suppose, for the purpose of this example, that each transaction requires one time unit to execute, and for each commit, we want to limit the longest sequential execution to 5 time units to help the execution keep up with the rate of consensus commits.
 We can clearly see that if we executed every transaction sequentially, it would require 11 time units, so 6 of these transactions would need to be deferred.
 In fact, we can do much better than this because transactions with no shared object dependencies can be executed in parallel, but we also need to consider preserving the gas-price ordering of transactions to ensure fairness for users.</p>
@@ -585,7 +586,7 @@ The limit placed on expected execution time serves as a congestion control, ensu
 <h2 id="the-existing-sequencer"><a class="header" href="#the-existing-sequencer">The existing sequencer</a></h2>
 <p>The existing sequencer iterates over the transactions in decreasing gas price order and assigns a new order allowing for parallel execution of transactions when they have no shared objects in common. If a pair of transactions write to <strong>any</strong> common shared object, their gas-price ordering must be preserved in this algorithm.
 The sequencing result in this example is as follows with the existing sequencer.</p>
-<p><img src="iips/IIP-0003/current.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0003/current.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0003/current.svg" alt="image"></span></label></p>
 <p>The first three transactions all touch <code>a</code>, so they must be executed sequentially in their gas price order.
 Transaction 4 must be executed after transaction 3 in the current sequencer because they both touch <code>c</code>, so their gas price order must be preserved.
 It would be feasible to execute transaction 4 in parallel with transaction 1 or 2 because they do not touch any common shared objects, but this would violate the gas price ordering between 3 and 4.
@@ -595,7 +596,7 @@ Transactions 8, 9 and 11 are all able to be executed in parallel without violati
 <p>In our proposal, we relax the requirement on gas price ordering so it only needs to be preserved if a transaction touches <strong>all</strong> the same shared objects.
 We assign the new transaction order one by one as before, but now we simply assign the transaction to the earliest execution start time where there is no transaction already sequenced that touches any common shared objects.
 The result for our example is illustrated below.</p>
-<p><img src="iips/IIP-0003/improved.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0003/improved.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0003/improved.svg" alt="image"></span></label></p>
 <p>The first three transactions are the same as before, but when we get to transaction 4, illustrated in orange here, we can sequence it in parallel to transaction 1 this time, placing transaction 4 in a higher position than transaction 3 because we do not need to preserve their gas price order as they do not touch an identical set of shared objects. Transactions 5 and 11 can also be sequenced in earlier slots than before this time due to the new algorithm. Additionally, transactions 6 and 10 can now be executed instead of being deferred as indicated in red.</p>
 <h2 id="specification-1"><a class="header" href="#specification-1">Specification</a></h2>
 <p>The proposed algorithm is specified in <a href="iips/IIP-0003/ICBC_2025_Sequencing.pdf">this paper</a>. The paper also provides proofs of a gas price fairness property and of improved throughput compared with the existing algorithm.</p>
@@ -610,16 +611,16 @@ We present a subset of representative here to make them publicly accessible.</p>
 To measure the performance of the proposed algorithm in reducing the number of cancellations, we stressed the network using a synthetic transaction set that consists of both directly and indirectly conflicting transactions.
 (An indirect conflict refers to two transactions with disjoint input objects sets that nonetheless both share at least one object with other conflicting transactions.)</p>
 <p>The figure below shows the cumulative number of cancellations over time during different trials of an experiment with 4000 transactions for both existing (canonical) and proposed (improved) algorithms. The number of cancellations was reduced by 60% in average.</p>
-<p><img src="iips/IIP-0003/experiment_cumulative.svg" alt="image">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0003/experiment_cumulative.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0003/experiment_cumulative.svg" alt="image"></span></label>
 For comparison, the figure below shows the cumulative number of successfully executed transactions from the same experiment.</p>
-<p><img src="iips/IIP-0003/experiment_cumulative_success.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0003/experiment_cumulative_success.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0003/experiment_cumulative_success.svg" alt="image"></span></label></p>
 <p>Note that the above experiment exemplifies the potential benefits of the improved sequencer well because the pattern of direct and indirect conflicts show the shortcomings of the canonical sequencer.
 However, for any consensus commit, the improved sequencer will always sequence at least as many transactions as the canonical sequencer as proven in <a href="iips/IIP-0003/ICBC_2025_Sequencing.pdf">this paper</a>.
 To further demonstrate the effectiveness of the new approach, we repeated experiments with transactions whose inputs sets are generated randomly, without controling the ratio of direct/indirect conflicts.
 We note that due to the random nature of the experiments, transactions are most likely to be in direct conflict, meaning there is less room for improvement.
 Even in this case, the number of cancellations was reduced by 7% in average.
 The figure below summarizes the comparison between the two algorithms in terms of the average number of cancellations for varying number of objects per transaction.</p>
-<p><img src="iips/IIP-0003/experiment_boxplot.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0003/experiment_boxplot.svg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0003/experiment_boxplot.svg" alt="image"></span></label></p>
 <h2 id="copyright-2"><a class="header" href="#copyright-2">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -932,7 +933,7 @@ requires: IIP-0010
 <p>Employing an <code>AddressOwner</code> ownership relation, instead, allows the sender to simply use the AI Account Identifier as the address. This choice renders AI Accounts indistinguishable from EOA addresses at the ownership level.</p>
 <p>Objects transferred to an AI Account Identifier do not require explicit acceptance by the receiver. When set as inputs of a transaction, their “unlocking” is performed by verifying that the AI Account Identifier matches the sender of the transaction, thereby ensuring that the account is authenticated.</p>
 <p>Figure 1 illustrates how the <code>AddressOwner(IotaAddress)</code> ownership variant applies to both EOA and AI Accounts. As shown, the external interface is identical, but the underlying derivation and verification mechanisms differ at the protocol level.</p>
-<p><img src="iips/IIP-0009/fig-1-ownership.svg" alt="Ownership variants"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0009/fig-1-ownership.svg" alt="Ownership variants"><span class="img-wrapper"><img src="iips/IIP-0009/fig-1-ownership.svg" alt="Ownership variants"></span></label></p>
 <p>The following table summarizes the key differences:</p>
 <div class="table-wrapper">
 <table>
@@ -961,7 +962,7 @@ requires: IIP-0010
 </blockquote>
 <p>The proposed addition of <code>MoveAuthenticator</code> extends the set of <code>GenericSignature</code> variants to support dynamic authentication logic. With this extension, third-party developers can deploy Move packages implementing a custom <code>AuthenticatorFunction</code>. An AI Account can then be configured to delegate its authentication to such a package. Inputs to the <code>AuthenticatorFunction</code> are encoded as <code>Vec&lt;CallArg&gt;</code> (where <code>CallArg</code> is a type defining pure and object arguments) and provided in the <code>MoveAuthenticator</code> signature field. The function either completes successfully or aborts with an error if authentication fails.</p>
 <p>Figure 2 compares the authentication flow for transactions issued by EOA and AI Accounts. The key distinction is that EOAs rely on cryptographic signature verification at the protocol level, whereas AI Accounts delegate verification to a developer-defined <code>AuthenticatorFunction</code> executed in Move.</p>
-<p><img src="iips/IIP-0009/fig-2-transactions.svg" alt="Transaction authentication"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0009/fig-2-transactions.svg" alt="Transaction authentication"><span class="img-wrapper"><img src="iips/IIP-0009/fig-2-transactions.svg" alt="Transaction authentication"></span></label></p>
 <p>The following subsections describe each authentication flow in detail.</p>
 <h5 id="traditional-eoa-transaction-authentication"><a class="header" href="#traditional-eoa-transaction-authentication">(Traditional) EOA Transaction Authentication</a></h5>
 <p><code>TransactionData</code> is the payload that makes transactions cryptographically unique. It includes sender, inputs, commands and gas data. Passing the raw bytes of the payload to a hash function yields its digest, i.e., <code>TransactionDigest</code>, which becomes the transaction identifier (encoded in base58).</p>
@@ -985,7 +986,7 @@ requires: IIP-0010
 }
 </code></pre>
 <p>Figure 3 illustrates a concrete example in which a custom Authenticator Move Package is deployed and linked to an AI Account to provide authentication:</p>
-<p><img src="iips/IIP-0009/fig-3-ai-auth-example.svg" alt="Custom move based authenticator"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0009/fig-3-ai-auth-example.svg" alt="Custom move based authenticator"><span class="img-wrapper"><img src="iips/IIP-0009/fig-3-ai-auth-example.svg" alt="Custom move based authenticator"></span></label></p>
 <p>In the example above, we imagine a scenario where a developer independently develops the Custom Authenticator package deployed at the address <code>0x789</code> (i.e., package id). This package defines the account interface through a module named <code>custom_auth</code>. In this module a <code>0x789::custom_auth::CustomAccount</code> Move object type is defined, which represents a specific implementation of an AI Account. The <code>CustomAccount</code> uses the field <code>auth_helpers</code> to store data on-chain; the logic governing this account is arbitrarily defined by the developer.</p>
 <p>The only field required to make <code>CustomAccount</code> an AI Account is a dynamic field using the <code>0x2::account::AuthenticatorFunctionRefV1Key</code> key and <code>0x2::authenticator_function::AuthenticatorFunctionRef</code> value. This dynamic field entry can only be created through a framework method in the <code>0x2::account</code> module, namely <code>create_account_v1</code>.</p>
 <p>The object with id <code>0xabc</code>, once becoming an AI Account, has an authentication method clearly defined by the “attached” <code>AuthenticatorFunctionRef</code>. This struct references a specific function within the category of Move functions known as <code>AuthenticatorFunction</code>. In the example, it references the <code>0x789::custom_auth::authenticate</code> function defined in the same module.</p>
@@ -1031,7 +1032,7 @@ requires: IIP-0010
 <h4 id="creating-authenticatorfunctionref"><a class="header" href="#creating-authenticatorfunctionref">Creating AuthenticatorFunctionRef</a></h4>
 <p>The <code>AuthenticatorFunctionRef</code>, as described above, is a struct that uniquely identifies a function within a package deployed on-chain. Its creation is enabled via the Package Metadata Standard (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a>).</p>
 <p>Figure 4 shows how the <code>PackageMetadata</code> object is used to validate and create an <code>AuthenticatorFunctionRef</code> during package publication.</p>
-<p><img src="iips/IIP-0009/fig-4-authenticator-function-ref.svg" alt="Creating authenticator function references"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0009/fig-4-authenticator-function-ref.svg" alt="Creating authenticator function references"><span class="img-wrapper"><img src="iips/IIP-0009/fig-4-authenticator-function-ref.svg" alt="Creating authenticator function references"></span></label></p>
 <p>Continuing with the same example from the previous subsection, consider the <code>CustomAuthenticator</code> package. When this package is published to the ledger, an associated <code>PackageMetadata</code> immutable object is created. This immutable object contains metadata for each module, including functions found in the <code>0x789::custom_auth</code> module. Specifically, the <code>0x789::custom_auth::authenticate</code> function is designated as an “authenticator” within the <code>PackageMetadata</code> object. To be designated as an authenticator, a function MUST follow the rules listed in the previous subsection and MUST be annotated with the <code>#[authenticator]</code> function attribute.</p>
 <p>The <code>PackageMetadata</code> object acts as a source of validation. This object is created by the protocol during package publication. If an <code>#[authenticator]</code> attribute is found for a function, the protocol validates that function using the <code>iota-move-verifier</code>. Since <code>PackageMetadata</code> is an immutable object that can only be created by the protocol, it cannot be forged with an unauthorized authenticator function.</p>
 <p>Given the trusted nature of the <code>PackageMetadata</code>, an <code>AuthenticatorFunctionRef</code> can be created by passing a <code>PackageMetadata</code> object as input. The function <code>0x2::authenticator_function::create_auth_function_ref</code> takes a <code>PackageMetadata</code>, a module name, and a function name, then verifies whether these inputs resolve to a valid authenticator function; if so, it returns an <code>AuthenticatorFunctionRef</code>. This reference is then used to create an account.</p>
@@ -2172,7 +2173,7 @@ requires: 2
 <p>Unlike its predecessors (e.g. Mysticeti), Starfish decouples block headers from payloads and only sequences a payload after a Data Availability Certificate (DAC) is observed. Each acknowledged payload must therefore wait at least one extra round for its DAC to accumulate. In the happy case, however, the leader and most honest voters already hold the payloads the leader acknowledges, so this extra wait is pure latency overhead.</p>
 <p>Starfish Speed removes that overhead on the optimistic path while preserving Starfish’s safety and liveness guarantees: payloads in <code>L.acks</code> are sequenced at the same latency as the base commit of <code>L</code> — matching Mysticeti’s per-payload latency. When the optimistic conditions are not met, the protocol falls back to base Starfish behaviour.</p>
 <p>In effect, Starfish Speed combines the best of both protocols: it inherits Starfish’s robustness — Reed-Solomon-encoded payload dissemination and the push-based DAG that decouples headers from transactions — while matching Mysticeti’s commit latency in the happy case.</p>
-<p><img src="iips/IIP-0012/pipeline-base-vs-starfish-speed.svg" alt="Base Starfish vs. Starfish Speed pipeline"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0012/pipeline-base-vs-starfish-speed.svg" alt="Base Starfish vs. Starfish Speed pipeline"><span class="img-wrapper"><img src="iips/IIP-0012/pipeline-base-vs-starfish-speed.svg" alt="Base Starfish vs. Starfish Speed pipeline"></span></label></p>
 <h2 id="specification-8"><a class="header" href="#specification-8">Specification</a></h2>
 <p>Starfish Speed modifies Starfish in the following places:</p>
 <ul>
@@ -2198,10 +2199,183 @@ requires: 2
 <h2 id="reference-implementation-6"><a class="header" href="#reference-implementation-6">Reference Implementation</a></h2>
 <p>A reference implementation is available on the <a href="https://github.com/iotaledger/iota/tree/consensus/feat/starfish-speed"><code>consensus/feat/starfish-speed</code></a> branch of <code>iotaledger/iota</code>. It extends the existing Starfish consensus crate with <code>BlockHeaderV2</code>, <code>Commit V3</code>, strong-vote computation, the optimistic linearizer path, and the <code>consensus_starfish_speed</code> protocol flag.</p>
 <p>The figure below compares base Starfish (left half of each panel) with Starfish Speed (right half) on a 19-validator network. Block commit latency is roughly unchanged (left panel, p50 ≈ 181 ms in both regimes), while transaction commit latency drops from ≈ 206 ms (p50) under base Starfish to ≈ 174 ms under Starfish Speed — the ~15% optimistic-path win expected from folding the data-availability acknowledgment into the leader vote.</p>
-<p><img src="iips/IIP-0012/benchmark-starfish-vs-starfish-speed.jpg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="iips/IIP-0012/benchmark-starfish-vs-starfish-speed.jpg" alt="image"><span class="img-wrapper"><img src="iips/IIP-0012/benchmark-starfish-vs-starfish-speed.jpg" alt="image"></span></label></p>
 <h2 id="copyright-8"><a class="header" href="#copyright-8">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 </ilia.vorobev@iota.org></nikita.polianskii@iota.org></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="iip-13-dynamic-module-metadata"><a href="#iip-13-dynamic-module-metadata" class="header">IIP-13 Dynamic Module Metadata</a></h1>
+<pre>
+iip: 13
+title: Dynamic Module Metadata
+description: Store package module metadata in dynamic fields so it can be extended without changing the package metadata object type.
+author: Lorenzo Benetollo (@lollobene) <lorenzo.benetollo@iota.org>, Mirko Zichichi (@miker83z) <mirko.zichichi@iota.org>
+discussions-to: https://github.com/iotaledger/IIPs/discussions/47
+status: Draft
+type: Standards Track
+layer: Core
+created: 2026-06-17
+requires: IIP-0010, IIP-0011
+
+<h2 id="abstract-9"><a class="header" href="#abstract-9">Abstract</a></h2>
+<p>This proposal refines the <code>PackageMetadata</code> model defined in <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a> by moving per-module metadata out of the immutable <code>PackageMetadataV1</code> object and into <strong>dynamic fields</strong>. Instead of embedding modules’ metadata into the <code>PackageMetadataV1</code>’s field <code>modules_metadata: VecMap&lt;String, ModuleMetadataV1&gt;</code>, a new set of dynamic fields is added to the <code>PackageMetadataV1</code> object for each module, i.e., a <code>ModuleMetadata</code> object. Each <code>ModuleMetadata</code> is itself an extensible key-value store backed by dynamic fields, where every key holds a distinct kind of module metadata entry.</p>
+<p>This makes the set of recorded module metadata kinds open-ended: new kinds can be added by writing a new dynamic field, without changing the <code>PackageMetadata</code> object type or introducing a new top-level struct version. The first new kind enabled by this layout is <strong>view function metadata</strong> — the list of <code>#[view]</code> functions (<a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0011/IIP-0011.md">IIP-0011</a>) per module — recorded alongside the existing authenticator metadata.</p>
+<p>The change is gated behind a protocol feature flag and is backwards compatible: packages published under the previous layout keep working, and the legacy accessors continue to function.</p>
+<h2 id="motivation-10"><a class="header" href="#motivation-10">Motivation</a></h2>
+<p><a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a> stores all module metadata inline in the frozen <code>PackageMetadataV1</code> object:</p>
+<pre><code class="language-move">public struct PackageMetadataV1 has key {
+    id: UID,
+    storage_id: ID,
+    runtime_id: ID,
+    package_version: u64,
+    modules_metadata: VecMap&lt;ascii::String, ModuleMetadataV1&gt;,
+}
+
+public struct ModuleMetadataV1 has copy, drop, store {
+    authenticator_metadata: vector&lt;AuthenticatorMetadataV1&gt;,
+}
+</code></pre>
+<p>This shape couples the <em>content</em> of module metadata to the <em>type</em> of the metadata object. IIP-0010 already anticipated that new metadata kinds (e.g. view functions) would be added, and proposed handling growth by bumping the struct version: <code>PackageMetadataV2</code>, <code>V3</code>, and so on (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md#backwards-compatibility">IIP-0010 — Backwards Compatibility</a>).</p>
+<p>Versioning the struct type for every new metadata kind has two drawbacks:</p>
+<ol>
+<li><strong>Type churn</strong>: every new kind of module metadata forces a new <code>ModuleMetadata</code>/<code>PackageMetadata</code> struct version, and every reader must learn the new type. A struct field is also strongly typed and ordered, which is a poor fit for an open, growing set of optional metadata kinds.</li>
+<li><strong>No partial reads</strong>: an inline <code>VecMap</code> is read as a whole. As more kinds are added, readers and tooling that only care about one kind (say, view functions) still materialize the entire module metadata.</li>
+</ol>
+<p><a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0011/IIP-0011.md">IIP-0011</a> introduces <code>#[view]</code> functions and states that view functions are exposed through <code>PackageMetadata</code>, “similarly to how authenticator functions are currently exposed”, so that clients and tooling can discover them without static analysis. Adding view function metadata is therefore the first concrete case that requires growing the per-module metadata, and it is the trigger for this refinement.</p>
+<p>This proposal addresses both drawbacks by representing module metadata as <strong>dynamic fields keyed by metadata kind</strong>. New kinds are added by writing a new key; readers fetch only the keys they need; and the <code>PackageMetadata</code> object type stays stable.</p>
+<h2 id="specification-9"><a class="header" href="#specification-9">Specification</a></h2>
+<p>This proposal modifies only the <strong>publish/upgrade object-creation phase</strong> and the <strong>runtime accessors</strong> of the Package Metadata model. The compilation phase, the trust model, and the package-metadata object id derivation are unchanged from <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a>: metadata is still extracted from verified bytecode by the protocol, the object is still frozen, and its id is still derived from the package storage id.</p>
+<h3 id="layout"><a class="header" href="#layout">Layout</a></h3>
+<p>The protocol builds <code>PackageMetadataV1</code> with the following dynamic-field layout instead of the inline <code>modules_metadata</code> map.</p>
+<ol>
+<li>A <strong>metadata-layout version</strong> marker under the <code>PackageMetadataVersionFieldName</code> key (starting from <code>2</code>, in order to distinguish from the implementation proposed for <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a>). Its presence allows to understand which layout a developer must reference to.</li>
+<li>A <strong>modules map</strong> under the <code>ModulesMetadataFieldName</code> key, of type <code>VecMap&lt;ModuleName, ModuleMetadata&gt;</code>, mapping each module name to its <code>ModuleMetadata</code> object.</li>
+</ol>
+<p>The inline <code>modules_metadata: VecMap&lt;ascii::String, ModuleMetadataV1&gt;</code> field of <code>PackageMetadataV1</code> is left empty under this layout; it is deprecated and MUST NOT be read by new code (it is kept in the struct definition for backwards compatibility).</p>
+<p>Each <code>ModuleMetadata</code> is a standalone object that behaves as a key-value store backed by dynamic fields:</p>
+<pre><code class="language-move">public struct ModuleMetadata has key, store {
+    /// the ID of this module_metadata
+    id: UID,
+    /// the number of key-value pairs in the module_metadata
+    size: u64,
+}
+</code></pre>
+<p>Each entry in a <code>ModuleMetadata</code> is a dynamic field whose key type identifies a <strong>kind</strong> of metadata and whose value holds that kind’s payload. The protocol defines the following keys for this version:</p>
+<ul>
+<li><code>ModuleMetadataV1FieldName</code> → <code>ModuleMetadataV1</code> — the authenticator metadata from IIP-0010, re-homed under this key. Present only for modules that have at least one authenticator.</li>
+<li><code>ViewFunctionMetadataV1FieldName</code> → <code>vector&lt;ascii::String&gt;</code> — the list of view function names declared in the module (new; see <a href="#view-function-metadata">View function metadata</a>). Present for every module recorded under this layout.</li>
+</ul>
+<p>Additional kinds can be introduced later as new key types without changing <code>ModuleMetadata</code>, <code>PackageMetadataV1</code>, or any existing key’s payload.</p>
+<h3 id="module-metadata-object-id-derivation"><a class="header" href="#module-metadata-object-id-derivation">Module metadata object id derivation</a></h3>
+<p>Each <code>ModuleMetadata</code> object id is derived deterministically from the owning package storage id and the module name, reusing the same derived-object mechanism IIP-0010 uses for the package metadata object id:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>module_metadata_id
+= derive_object_id(package_storage_id, &lt;0x2::module_metadata::ModuleMetadataKey&gt;, module_name)
+<span class="boring">}</span></code></pre>
+<p>Where <code>ModuleMetadataKey</code> wraps the module name (<code>ModuleMetadataKey(ascii::String)</code>). Deriving from the package id together with the module name guarantees that:</p>
+<ul>
+<li>each module of a package gets a distinct <code>ModuleMetadata</code> object, and</li>
+<li>the same module name in different packages does not collide.</li>
+</ul>
+<p>As with the package metadata id, this approach has the advantage that the id can be computed by off-chain tooling without a lookup.</p>
+<h3 id="view-function-metadata"><a class="header" href="#view-function-metadata">View function metadata</a></h3>
+<p>A function annotated with <code>#[view]</code> (<a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0011/IIP-0011.md">IIP-0011</a>) is recorded in its module’s <code>ModuleMetadata</code> under the <code>ViewFunctionMetadataV1FieldName</code> key as a <code>vector&lt;ascii::String&gt;</code> of function names.</p>
+<p>The flow mirrors the authenticator flow of IIP-0010:</p>
+<ol>
+<li><strong>Compilation</strong>: the <code>#[view]</code> attribute is recorded in the function’s <code>RuntimeModuleMetadata</code> and embedded in the module bytecode, exactly as other recognized attributes are.</li>
+<li><strong>Publish/upgrade verification</strong>: the IOTA bytecode verifier validates each function marked as a view function against the IIP-0011 signature constraints. A package that marks a non-conforming function as <code>#[view]</code> fails to publish — this is what lets readers trust the recorded list without re-checking signatures.</li>
+<li><strong>Object creation</strong>: for each module, the protocol writes the verified view function names into the module’s <code>ModuleMetadata</code>.</li>
+</ol>
+<h3 id="move-types-and-methods"><a class="header" href="#move-types-and-methods">Move types and methods</a></h3>
+<h4 id="new-accessors"><a class="header" href="#new-accessors">New accessors</a></h4>
+<pre><code class="language-move">/// Borrows the `ModuleMetadata` of the module named `module_name`.
+/// Aborts with `EModuleMetadataNotFound` if the package has no metadata for that module.
+public fun module_metadata(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+): &amp;ModuleMetadata;
+
+/// Borrows the `AuthenticatorMetadataV1` of `function_name` in `module_name`.
+public fun module_authenticator_function_metadata_v1(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+    function_name: &amp;ascii::String,
+): &amp;AuthenticatorMetadataV1;
+
+/// Borrows / safely gets the `AuthenticatorMetadataV1` of `function_name`
+/// from a given module metadata.
+public fun authenticator_function_metadata_v1(
+    self: &amp;ModuleMetadata,
+    function_name: &amp;ascii::String,
+): &amp;AuthenticatorMetadataV1;
+public fun try_get_authenticator_function_metadata_v1(
+    self: &amp;ModuleMetadata,
+    function_name: &amp;ascii::String,
+): Option&lt;AuthenticatorMetadataV1&gt;;
+</code></pre>
+<p>On the <code>ModuleMetadata</code> object:</p>
+<pre><code class="language-move">/// Returns true iff the module recorded any view function metadata.
+public fun contains_view_functions_metadata_v1(self: &amp;ModuleMetadata): bool;
+
+/// Borrows the list of view function names recorded for the module.
+public fun borrow_view_functions_metadata_v1(self: &amp;ModuleMetadata): &amp;vector&lt;ascii::String&gt;;
+
+/// Returns true iff `function_name` is one of the module's view functions.
+public fun is_view_function_v1(self: &amp;ModuleMetadata, function_name: &amp;ascii::String): bool;
+
+/// Number of metadata kinds recorded for the module / whether it is empty.
+public fun length(self: &amp;ModuleMetadata): u64;
+public fun is_empty(self: &amp;ModuleMetadata): bool;
+</code></pre>
+<h4 id="deprecated-accessors"><a class="header" href="#deprecated-accessors">Deprecated accessors</a></h4>
+<p>The IIP-0010 accessors that return <code>ModuleMetadataV1</code> by value are retained but <strong>deprecated</strong>. They are made layout-aware: when called on an object built with the dynamic-field layout (version marker <code>== 2</code>), they read through the dynamic fields; otherwise they fall back to the inline map. This keeps existing callers working across both layouts.</p>
+<pre><code class="language-move">#[deprecated]
+public fun try_get_modules_metadata_v1(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+): Option&lt;ModuleMetadataV1&gt;;
+
+#[deprecated]
+public fun modules_metadata_v1(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+): &amp;ModuleMetadataV1;
+</code></pre>
+<h2 id="rationale-9"><a class="header" href="#rationale-9">Rationale</a></h2>
+<p><strong>Why dynamic fields instead of struct versioning.</strong> IIP-0010 proposed accommodating new metadata kinds by bumping the <code>PackageMetadata</code>/<code>ModuleMetadata</code> struct version. Dynamic fields keyed by metadata kind achieve the same extensibility without type churn: a new kind is a new key, not a new struct type, and the <code>PackageMetadata</code> object type stays stable across additions. Readers fetch only the kinds they care about, and unknown kinds are simply absent keys rather than version mismatches. This matches how the metadata is actually consumed — an open, optional, per-module set of facts — better than a fixed, ordered struct.</p>
+<p><strong>Why a version marker.</strong> The <code>PackageMetadataVersionFieldName</code> field (value <code>2</code>) lets a reader, and the deprecated accessors, distinguish the dynamic-field layout from the legacy inline layout on an existing object, so both can coexist on-chain after the protocol upgrade.</p>
+<p><strong>Why per-module derived objects.</strong> Giving each module its own <code>ModuleMetadata</code> object, with an id derived from the package id and module name, keeps each module’s dynamic fields in an isolated namespace, makes the module metadata object addressable and computable off-chain, and avoids collisions between identically named modules in different packages.</p>
+<p><strong>Trust model unchanged.</strong> As in IIP-0010, all content is written by the protocol from verified bytecode and frozen. For view functions specifically, the verifier rejects any package that marks a non-conforming function <code>#[view]</code>, so the recorded view function list is trustworthy without re-validation by readers.</p>
+<h2 id="backwards-compatibility-10"><a class="header" href="#backwards-compatibility-10">Backwards Compatibility</a></h2>
+<p>This proposal is backwards compatible.</p>
+<ol>
+<li><strong>Existing metadata objects</strong>: packages published under the IIP-0010 inline layout keep their existing <code>PackageMetadataV1</code> objects unchanged. They have no version marker and no dynamic fields, and the deprecated accessors continue to read them via the inline map.</li>
+<li><strong>Accessor compatibility</strong>: the IIP-0010 accessors (<code>modules_metadata_v1</code>, <code>try_get_modules_metadata_v1</code>) remain available and are made layout-aware, so callers compiled against IIP-0010 continue to work against objects in either layout. They are deprecated in favor of the new <code>module_metadata</code> / <code>*_function_metadata_v1</code> accessors.</li>
+<li><strong>Adding future kinds</strong>: new module metadata kinds can be added as additional dynamic-field keys without changing any existing type or payload, and without bumping the layout version.</li>
+</ol>
+<p>The <code>modules_metadata</code> inline field of <code>PackageMetadataV1</code> is retained for compatibility but is empty under the new layout and deprecated for reads.</p>
+<h2 id="test-cases-6"><a class="header" href="#test-cases-6">Test Cases</a></h2>
+<ol>
+<li>Authenticator metadata round-trips through the dynamic-field layout (publish a package with <code>#[authenticator]</code> functions; read back via both the new and the deprecated accessors).</li>
+<li>View function metadata is recorded for <code>#[view]</code> functions and queryable via <code>is_view_function_v1</code> / <code>borrow_view_functions_metadata_v1</code>.</li>
+<li>Conditional creation: a package with neither authenticators nor view functions produces no <code>PackageMetadata</code> object; a package with only view functions does.</li>
+<li>A package upgrade that removes a view function produces an updated metadata object for the new version while the previous version’s metadata stays valid.</li>
+<li>Deprecated accessors behave identically against legacy inline-layout objects and dynamic-field-layout objects.</li>
+<li>The bytecode verifier rejects a package that marks a non-conforming function as <code>#[view]</code> at publish time.</li>
+</ol>
+<h2 id="reference-implementation-7"><a class="header" href="#reference-implementation-7">Reference Implementation</a></h2>
+<p>See <a href="https://github.com/iotaledger/iota/pull/11616">PR #11616</a> for the reference implementation. Key components:</p>
+<ul>
+<li>Framework modules <code>iota::package_metadata</code> and <code>iota::module_metadata</code> (<code>crates/iota-framework/packages/iota-framework/sources/package_metadata/</code>).</li>
+<li>Protocol-side object creation under the feature flag (<code>iota-execution/latest/iota-adapter/.../package_metadata.rs</code>).</li>
+<li>View function bytecode verification (<code>iota-execution/latest/iota-verifier/.../view_function_verifier.rs</code>).</li>
+<li>Feature flag <code>package_metadata_with_dynamic_module_metadata</code> in <code>crates/iota-protocol-config</code>.</li>
+</ul>
+<p>See also <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a> (Package Metadata) and <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0011/IIP-0011.md">IIP-0011</a> (Core Move View Functions).</p>
+<h2 id="copyright-9"><a class="header" href="#copyright-9">Copyright</a></h2>
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+</mirko.zichichi@iota.org></lorenzo.benetollo@iota.org></pre>
 
                     </main>
 
@@ -2239,7 +2413,7 @@ requires: 2
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-abc7f01d.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

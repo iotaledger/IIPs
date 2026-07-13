@@ -15,8 +15,8 @@
         <link rel="icon" href="../../favicon-de23e50b.svg">
         <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
         <link rel="stylesheet" href="../../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../../css/general-0392ca55.css">
-        <link rel="stylesheet" href="../../css/chrome-fc474251.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
         <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -35,10 +35,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-e2a8cbf9.js";
+            window.path_to_searchindex_js = "../../searchindex-8de07a1a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-058a78f2.js"></script>
+        <script src="../../toc-fc6c2a6a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -192,7 +192,7 @@ requires: 2
 <p>Unlike its predecessors (e.g. Mysticeti), Starfish decouples block headers from payloads and only sequences a payload after a Data Availability Certificate (DAC) is observed. Each acknowledged payload must therefore wait at least one extra round for its DAC to accumulate. In the happy case, however, the leader and most honest voters already hold the payloads the leader acknowledges, so this extra wait is pure latency overhead.</p>
 <p>Starfish Speed removes that overhead on the optimistic path while preserving Starfish’s safety and liveness guarantees: payloads in <code>L.acks</code> are sequenced at the same latency as the base commit of <code>L</code> — matching Mysticeti’s per-payload latency. When the optimistic conditions are not met, the protocol falls back to base Starfish behaviour.</p>
 <p>In effect, Starfish Speed combines the best of both protocols: it inherits Starfish’s robustness — Reed-Solomon-encoded payload dissemination and the push-based DAG that decouples headers from transactions — while matching Mysticeti’s commit latency in the happy case.</p>
-<p><img src="pipeline-base-vs-starfish-speed.svg" alt="Base Starfish vs. Starfish Speed pipeline"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="pipeline-base-vs-starfish-speed.svg" alt="Base Starfish vs. Starfish Speed pipeline"><span class="img-wrapper"><img src="pipeline-base-vs-starfish-speed.svg" alt="Base Starfish vs. Starfish Speed pipeline"></span></label></p>
 <h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
 <p>Starfish Speed modifies Starfish in the following places:</p>
 <ul>
@@ -218,7 +218,7 @@ requires: 2
 <h2 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h2>
 <p>A reference implementation is available on the <a href="https://github.com/iotaledger/iota/tree/consensus/feat/starfish-speed"><code>consensus/feat/starfish-speed</code></a> branch of <code>iotaledger/iota</code>. It extends the existing Starfish consensus crate with <code>BlockHeaderV2</code>, <code>Commit V3</code>, strong-vote computation, the optimistic linearizer path, and the <code>consensus_starfish_speed</code> protocol flag.</p>
 <p>The figure below compares base Starfish (left half of each panel) with Starfish Speed (right half) on a 19-validator network. Block commit latency is roughly unchanged (left panel, p50 ≈ 181 ms in both regimes), while transaction commit latency drops from ≈ 206 ms (p50) under base Starfish to ≈ 174 ms under Starfish Speed — the ~15% optimistic-path win expected from folding the data-availability acknowledgment into the leader vote.</p>
-<p><img src="./benchmark-starfish-vs-starfish-speed.jpg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./benchmark-starfish-vs-starfish-speed.jpg" alt="image"><span class="img-wrapper"><img src="./benchmark-starfish-vs-starfish-speed.jpg" alt="image"></span></label></p>
 <h2 id="copyright"><a class="header" href="#copyright">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 </ilia.vorobev@iota.org></nikita.polianskii@iota.org></pre>
@@ -231,6 +231,9 @@ requires: 2
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
+                            <a rel="next prefetch" href="../../iips/IIP-0013/IIP-0013.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -242,6 +245,9 @@ requires: 2
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
+                    <a rel="next prefetch" href="../../iips/IIP-0013/IIP-0013.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
             </nav>
 
         </div>
@@ -265,7 +271,7 @@ requires: 2
 
         <script src="../../clipboard-1626706a.min.js"></script>
         <script src="../../highlight-abc7f01d.js"></script>
-        <script src="../../book-c22b7243.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>IIP-2 Starfish Consensus Protocol - The Iota Improvement Proposal (IIP) Book</title>
+        <title>IIP-13 Dynamic Module Metadata - The Iota Improvement Proposal (IIP) Book</title>
 
 
         <!-- Custom HTML head -->
@@ -175,117 +175,185 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <pre>
-iip: 2
-title: Starfish Consensus Protocol
-description: A DAG-based consensus protocol improving liveness and efficiency
-author: Nikita Polianskii (@polinikita) <nikita.polianskii@iota.org>
-discussions-to: https://github.com/iotaledger/IIPs/discussions/10
-status: Active
+iip: 13
+title: Dynamic Module Metadata
+description: Store package module metadata in dynamic fields so it can be extended without changing the package metadata object type.
+author: Lorenzo Benetollo (@lollobene) <lorenzo.benetollo@iota.org>, Mirko Zichichi (@miker83z) <mirko.zichichi@iota.org>
+discussions-to: https://github.com/iotaledger/IIPs/discussions/47
+status: Draft
 type: Standards Track
 layer: Core
-created: 2025-04-16
-requires: None
+created: 2026-06-17
+requires: IIP-0010, IIP-0011
 
 <h2 id="abstract"><a class="header" href="#abstract">Abstract</a></h2>
-<p>This IIP proposes Starfish, a DAG-based consensus protocol enhancing Mysticeti. Starfish decouples block headers from transaction data, enabling push-based header dissemination, and encodes transaction data into Reed-Solomon shards for efficient reconstruction. These mechanisms improve liveness, reduce communication complexity to linear, and lower storage overhead, even in Byzantine environments.</p>
+<p>This proposal refines the <code>PackageMetadata</code> model defined in <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a> by moving per-module metadata out of the immutable <code>PackageMetadataV1</code> object and into <strong>dynamic fields</strong>. Instead of embedding modules’ metadata into the <code>PackageMetadataV1</code>’s field <code>modules_metadata: VecMap&lt;String, ModuleMetadataV1&gt;</code>, a new set of dynamic fields is added to the <code>PackageMetadataV1</code> object for each module, i.e., a <code>ModuleMetadata</code> object. Each <code>ModuleMetadata</code> is itself an extensible key-value store backed by dynamic fields, where every key holds a distinct kind of module metadata entry.</p>
+<p>This makes the set of recorded module metadata kinds open-ended: new kinds can be added by writing a new dynamic field, without changing the <code>PackageMetadata</code> object type or introducing a new top-level struct version. The first new kind enabled by this layout is <strong>view function metadata</strong> — the list of <code>#[view]</code> functions (<a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0011/IIP-0011.md">IIP-0011</a>) per module — recorded alongside the existing authenticator metadata.</p>
+<p>The change is gated behind a protocol feature flag and is backwards compatible: packages published under the previous layout keep working, and the legacy accessors continue to function.</p>
 <h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
-<p>Starfish addresses three limitations in Mysticeti:</p>
-<p><strong>Liveness.</strong> Because of Byzantine behaviour, slow or deadlocked network connection and/or slow computational capability, some
-validators, hereafter called <em>slow</em> validators, can share its own block to only a few selected peers in time. Blocks that reference
-blocks of slow validators can stay suspended in the block managers for a long time depending on the depth of the missing
-causal history. In Mysticeti, the blocks of the recent DAG are fetched by explicit requesting the missing parents of a given suspended block.
-This slow synchronization of the recent DAG can trigger liveness issues in Mysticeti. Starfish allows for faster synchronization
-of the recent DAG.</p>
-<p><strong>Communication complexity.</strong> For n=3f+1, we can observe in the network with f slow validators situations when each block of a slow validator, while being disseminated to f not-slow validators, will be requested from these validators by other validators.
-This may lead to impractical quadratic communication complexity O(n^2). Starfish keeps the communication complexity linear
-for all circumstances by using Reed-Solomon codes and using shards in dissemination of other blocks.</p>
-<p><strong>Storage overhead.</strong> Now each validator store the whole transaction data associated with a block. With Starfish, we can
-store block headers with only one shard of transaction data, reducing the size of the consensus database.</p>
+<p><a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a> stores all module metadata inline in the frozen <code>PackageMetadataV1</code> object:</p>
+<pre><code class="language-move">public struct PackageMetadataV1 has key {
+    id: UID,
+    storage_id: ID,
+    runtime_id: ID,
+    package_version: u64,
+    modules_metadata: VecMap&lt;ascii::String, ModuleMetadataV1&gt;,
+}
+
+public struct ModuleMetadataV1 has copy, drop, store {
+    authenticator_metadata: vector&lt;AuthenticatorMetadataV1&gt;,
+}
+</code></pre>
+<p>This shape couples the <em>content</em> of module metadata to the <em>type</em> of the metadata object. IIP-0010 already anticipated that new metadata kinds (e.g. view functions) would be added, and proposed handling growth by bumping the struct version: <code>PackageMetadataV2</code>, <code>V3</code>, and so on (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md#backwards-compatibility">IIP-0010 — Backwards Compatibility</a>).</p>
+<p>Versioning the struct type for every new metadata kind has two drawbacks:</p>
+<ol>
+<li><strong>Type churn</strong>: every new kind of module metadata forces a new <code>ModuleMetadata</code>/<code>PackageMetadata</code> struct version, and every reader must learn the new type. A struct field is also strongly typed and ordered, which is a poor fit for an open, growing set of optional metadata kinds.</li>
+<li><strong>No partial reads</strong>: an inline <code>VecMap</code> is read as a whole. As more kinds are added, readers and tooling that only care about one kind (say, view functions) still materialize the entire module metadata.</li>
+</ol>
+<p><a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0011/IIP-0011.md">IIP-0011</a> introduces <code>#[view]</code> functions and states that view functions are exposed through <code>PackageMetadata</code>, “similarly to how authenticator functions are currently exposed”, so that clients and tooling can discover them without static analysis. Adding view function metadata is therefore the first concrete case that requires growing the per-module metadata, and it is the trigger for this refinement.</p>
+<p>This proposal addresses both drawbacks by representing module metadata as <strong>dynamic fields keyed by metadata kind</strong>. New kinds are added by writing a new key; readers fetch only the keys they need; and the <code>PackageMetadata</code> object type stays stable.</p>
 <h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
-<p>Starfish requires implementation of a new crate as it contains many new components in consensus and modifies existing modules.
-Below, we sum up the most important changes compared to the current version of Mysticeti:</p>
+<p>This proposal modifies only the <strong>publish/upgrade object-creation phase</strong> and the <strong>runtime accessors</strong> of the Package Metadata model. The compilation phase, the trust model, and the package-metadata object id derivation are unchanged from <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a>: metadata is still extracted from verified bytecode by the protocol, the object is still frozen, and its id is still derived from the package storage id.</p>
+<h3 id="layout"><a class="header" href="#layout">Layout</a></h3>
+<p>The protocol builds <code>PackageMetadataV1</code> with the following dynamic-field layout instead of the inline <code>modules_metadata</code> map.</p>
+<ol>
+<li>A <strong>metadata-layout version</strong> marker under the <code>PackageMetadataVersionFieldName</code> key (starting from <code>2</code>, in order to distinguish from the implementation proposed for <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a>). Its presence allows to understand which layout a developer must reference to.</li>
+<li>A <strong>modules map</strong> under the <code>ModulesMetadataFieldName</code> key, of type <code>VecMap&lt;ModuleName, ModuleMetadata&gt;</code>, mapping each module name to its <code>ModuleMetadata</code> object.</li>
+</ol>
+<p>The inline <code>modules_metadata: VecMap&lt;ascii::String, ModuleMetadataV1&gt;</code> field of <code>PackageMetadataV1</code> is left empty under this layout; it is deprecated and MUST NOT be read by new code (it is kept in the struct definition for backwards compatibility).</p>
+<p>Each <code>ModuleMetadata</code> is a standalone object that behaves as a key-value store backed by dynamic fields:</p>
+<pre><code class="language-move">public struct ModuleMetadata has key, store {
+    /// the ID of this module_metadata
+    id: UID,
+    /// the number of key-value pairs in the module_metadata
+    size: u64,
+}
+</code></pre>
+<p>Each entry in a <code>ModuleMetadata</code> is a dynamic field whose key type identifies a <strong>kind</strong> of metadata and whose value holds that kind’s payload. The protocol defines the following keys for this version:</p>
 <ul>
-<li>Block Structure:
+<li><code>ModuleMetadataV1FieldName</code> → <code>ModuleMetadataV1</code> — the authenticator metadata from IIP-0010, re-homed under this key. Present only for modules that have at least one authenticator.</li>
+<li><code>ViewFunctionMetadataV1FieldName</code> → <code>vector&lt;ascii::String&gt;</code> — the list of view function names declared in the module (new; see <a href="#view-function-metadata">View function metadata</a>). Present for every module recorded under this layout.</li>
+</ul>
+<p>Additional kinds can be introduced later as new key types without changing <code>ModuleMetadata</code>, <code>PackageMetadataV1</code>, or any existing key’s payload.</p>
+<h3 id="module-metadata-object-id-derivation"><a class="header" href="#module-metadata-object-id-derivation">Module metadata object id derivation</a></h3>
+<p>Each <code>ModuleMetadata</code> object id is derived deterministically from the owning package storage id and the module name, reusing the same derived-object mechanism IIP-0010 uses for the package metadata object id:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>module_metadata_id
+= derive_object_id(package_storage_id, &lt;0x2::module_metadata::ModuleMetadataKey&gt;, module_name)
+<span class="boring">}</span></code></pre>
+<p>Where <code>ModuleMetadataKey</code> wraps the module name (<code>ModuleMetadataKey(ascii::String)</code>). Deriving from the package id together with the module name guarantees that:</p>
 <ul>
-<li>Separation of Header and Data: Blocks are split into headers (containing metadata) and body optionally containing transaction data or shard. Only headers are signed, and the block digest is calculated solely from the header.</li>
-<li>Data Commitment: Blocks include a Merkle root commitment to encoded transaction data.</li>
-<li>Data Acknowledgment: Once the transaction data of a block is available by a validator, it should acknowledge that in next block.</li>
-<li>Sharding with Reed-Solomon Codes: Transaction data is encoded into shards using Reed-Solomon codes, allowing reconstruction from a subset of shards.
-The commitment could be a Merkle tree on the encoded shards. For own blocks, send full transaction data; for blocks of other validators, send shards together with proofs.</li>
+<li>each module of a package gets a distinct <code>ModuleMetadata</code> object, and</li>
+<li>the same module name in different packages does not collide.</li>
 </ul>
-</li>
-<li>Encoder/Decoder: block verifier, core and data manager should be equipped by [n,f+1] Reed-Solomon encoders and decoders to a) ensure the correctness
-of the computed transaction commitment, b) be able to decode the transaction data from locally available shards, c) create
-new blocks</li>
-<li>Block Verifier:
-Validates incoming block headers independently. If transaction data is received, verifies its commitment against the header to ensure correctness.</li>
-<li>Data Manager:
-Handles transaction data retrieval and reconstruction. Requests missing data from the block author first (full data with sharding) or from nodes acknowledging the data (shards). Once reconstructed, data is forwarded to the DagState for storage and future serving.</li>
-<li>Block Creation:
-Generates blocks with separate headers and transaction data. The data commitment should be computed based on the encoded transaction data by using some commitment scheme that allow for proofs, e.g. Merkle tree. Includes in a block header pending data acknowledgments.</li>
-<li>Dag State:
-In addition, it should track for which blocks, a validator has transaction data (pending acknowledgments). Another important structure should provide information about who knows which block headers to disseminate only those block headers
-that are indeed needed.</li>
-<li>Linearizer:
-Tracks data acknowledgments for past blocks, including only quorum-acknowledged data in new commits.</li>
-<li>Streaming own blocks:
-Broadcast own blocks with their transaction data and block headers potentially missing by peers.</li>
-<li>Storage:
-Separates storage for headers and shards and own transaction data. Triggers data storage upon availability to minimize overhead.</li>
-<li>Commit Structure:
-Includes references to headers traversed by the Linearizer for data acknowledgment collection. Lists data blocks with a quorum of acknowledgments with optional bitmaps of acknowledging nodes to optimize data retrieval.</li>
-</ul>
-<p>Starfish can be enabled via protocol parameters.</p>
-<p>For theoretical details, see <a href="https://eprint.iacr.org/2025/567">eprint.iacr.org/2025/567</a>.</p>
+<p>As with the package metadata id, this approach has the advantage that the id can be computed by off-chain tooling without a lookup.</p>
+<h3 id="view-function-metadata"><a class="header" href="#view-function-metadata">View function metadata</a></h3>
+<p>A function annotated with <code>#[view]</code> (<a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0011/IIP-0011.md">IIP-0011</a>) is recorded in its module’s <code>ModuleMetadata</code> under the <code>ViewFunctionMetadataV1FieldName</code> key as a <code>vector&lt;ascii::String&gt;</code> of function names.</p>
+<p>The flow mirrors the authenticator flow of IIP-0010:</p>
+<ol>
+<li><strong>Compilation</strong>: the <code>#[view]</code> attribute is recorded in the function’s <code>RuntimeModuleMetadata</code> and embedded in the module bytecode, exactly as other recognized attributes are.</li>
+<li><strong>Publish/upgrade verification</strong>: the IOTA bytecode verifier validates each function marked as a view function against the IIP-0011 signature constraints. A package that marks a non-conforming function as <code>#[view]</code> fails to publish — this is what lets readers trust the recorded list without re-checking signatures.</li>
+<li><strong>Object creation</strong>: for each module, the protocol writes the verified view function names into the module’s <code>ModuleMetadata</code>.</li>
+</ol>
+<h3 id="move-types-and-methods"><a class="header" href="#move-types-and-methods">Move types and methods</a></h3>
+<h4 id="new-accessors"><a class="header" href="#new-accessors">New accessors</a></h4>
+<pre><code class="language-move">/// Borrows the `ModuleMetadata` of the module named `module_name`.
+/// Aborts with `EModuleMetadataNotFound` if the package has no metadata for that module.
+public fun module_metadata(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+): &amp;ModuleMetadata;
+
+/// Borrows the `AuthenticatorMetadataV1` of `function_name` in `module_name`.
+public fun module_authenticator_function_metadata_v1(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+    function_name: &amp;ascii::String,
+): &amp;AuthenticatorMetadataV1;
+
+/// Borrows / safely gets the `AuthenticatorMetadataV1` of `function_name`
+/// from a given module metadata.
+public fun authenticator_function_metadata_v1(
+    self: &amp;ModuleMetadata,
+    function_name: &amp;ascii::String,
+): &amp;AuthenticatorMetadataV1;
+public fun try_get_authenticator_function_metadata_v1(
+    self: &amp;ModuleMetadata,
+    function_name: &amp;ascii::String,
+): Option&lt;AuthenticatorMetadataV1&gt;;
+</code></pre>
+<p>On the <code>ModuleMetadata</code> object:</p>
+<pre><code class="language-move">/// Returns true iff the module recorded any view function metadata.
+public fun contains_view_functions_metadata_v1(self: &amp;ModuleMetadata): bool;
+
+/// Borrows the list of view function names recorded for the module.
+public fun borrow_view_functions_metadata_v1(self: &amp;ModuleMetadata): &amp;vector&lt;ascii::String&gt;;
+
+/// Returns true iff `function_name` is one of the module's view functions.
+public fun is_view_function_v1(self: &amp;ModuleMetadata, function_name: &amp;ascii::String): bool;
+
+/// Number of metadata kinds recorded for the module / whether it is empty.
+public fun length(self: &amp;ModuleMetadata): u64;
+public fun is_empty(self: &amp;ModuleMetadata): bool;
+</code></pre>
+<h4 id="deprecated-accessors"><a class="header" href="#deprecated-accessors">Deprecated accessors</a></h4>
+<p>The IIP-0010 accessors that return <code>ModuleMetadataV1</code> by value are retained but <strong>deprecated</strong>. They are made layout-aware: when called on an object built with the dynamic-field layout (version marker <code>== 2</code>), they read through the dynamic fields; otherwise they fall back to the inline map. This keeps existing callers working across both layouts.</p>
+<pre><code class="language-move">#[deprecated]
+public fun try_get_modules_metadata_v1(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+): Option&lt;ModuleMetadataV1&gt;;
+
+#[deprecated]
+public fun modules_metadata_v1(
+    self: &amp;PackageMetadataV1,
+    module_name: &amp;ascii::String,
+): &amp;ModuleMetadataV1;
+</code></pre>
 <h2 id="rationale"><a class="header" href="#rationale">Rationale</a></h2>
-<p>Starfish’s design is driven by the need to enhance Mysticeti’s performance in bad network conditions and/or adversarial environment. Key decisions include:</p>
-<ul>
-<li><strong>Header-Data Decoupling</strong>: Since the constructed DAG in Mysticeti is uncertified, the block propogation is one of the key issues. We decouple the header from data in the block structure to ensure that we can push all the required block headers. Only block headers are needed for driving the consensus. The transaction data can be retrieved once sequenced.</li>
-<li><strong>Data Acknowledgments</strong>: Since we decouple headers from data, we can’t simply sequence the data associated with a block by a vanilla Mysticeti commit rule as it might be unavailable by a majority of the network. Thereby, one needs to include in block headers acknowledgments about transaction data availability for past blocks. In addition, for sequencing transactions one needs to get a quorum of acknowledgments.</li>
-<li><strong>Reed-Solomon Sharding</strong>: Chosen for its ability to reconstruct data from any f+1 shards, ensuring linear communication complexity. Reed-Solomon codes are optimal in terms of recoverability and this is a primary reason why we stick with them. In addition, there are libraries (e.g. https://crates.io/crates/reed-solomon-simd) that are very CPU efficient and consume little memory.</li>
-<li><strong>Merkle Tree Commitments</strong>: Preferred for their simple proof generation, enabling shard verification without full data.</li>
-<li><strong>Data Manager</strong>: To ensure live consensus decisions, it is enough to have available all block headers in the causal history of blocks. Data manager is needed to fetch potentially missing transaction data from peers once it is sequenced and available to a quorum of the network.</li>
-</ul>
+<p><strong>Why dynamic fields instead of struct versioning.</strong> IIP-0010 proposed accommodating new metadata kinds by bumping the <code>PackageMetadata</code>/<code>ModuleMetadata</code> struct version. Dynamic fields keyed by metadata kind achieve the same extensibility without type churn: a new kind is a new key, not a new struct type, and the <code>PackageMetadata</code> object type stays stable across additions. Readers fetch only the kinds they care about, and unknown kinds are simply absent keys rather than version mismatches. This matches how the metadata is actually consumed — an open, optional, per-module set of facts — better than a fixed, ordered struct.</p>
+<p><strong>Why a version marker.</strong> The <code>PackageMetadataVersionFieldName</code> field (value <code>2</code>) lets a reader, and the deprecated accessors, distinguish the dynamic-field layout from the legacy inline layout on an existing object, so both can coexist on-chain after the protocol upgrade.</p>
+<p><strong>Why per-module derived objects.</strong> Giving each module its own <code>ModuleMetadata</code> object, with an id derived from the package id and module name, keeps each module’s dynamic fields in an isolated namespace, makes the module metadata object addressable and computable off-chain, and avoids collisions between identically named modules in different packages.</p>
+<p><strong>Trust model unchanged.</strong> As in IIP-0010, all content is written by the protocol from verified bytecode and frozen. For view functions specifically, the verifier rejects any package that marks a non-conforming function <code>#[view]</code>, so the recorded view function list is trustworthy without re-validation by readers.</p>
 <h2 id="backwards-compatibility"><a class="header" href="#backwards-compatibility">Backwards Compatibility</a></h2>
-<p>Starfish introduces backwards incompatibilities with Mysticeti consensus crate:</p>
-<ul>
-<li><strong>Block Structure</strong>: The new header-data split and sharding are incompatible with Mysticeti’s monolithic blocks.</li>
-<li><strong>Storage</strong>: Mysticeti’s full-data storage is replaced by header-shard storage. This storage is not replacable across validators.</li>
-<li><strong>Protocol Logic</strong>: Components like block verifier and linearizer require updates, breaking compatibility with Mysticeti’s logic.</li>
-</ul>
-<p><strong>Mitigation</strong>:</p>
-<ul>
-<li>Use crate <code>iotaledger/iota/crates/starfish</code> and enable Starfish with protocol parameters.</li>
-<li>Test compatibility in a public testnet to ensure node upgrades are seamless.</li>
-<li>Remove <code>iotaledger/iota/consensus</code> at a later point</li>
-</ul>
+<p>This proposal is backwards compatible.</p>
+<ol>
+<li><strong>Existing metadata objects</strong>: packages published under the IIP-0010 inline layout keep their existing <code>PackageMetadataV1</code> objects unchanged. They have no version marker and no dynamic fields, and the deprecated accessors continue to read them via the inline map.</li>
+<li><strong>Accessor compatibility</strong>: the IIP-0010 accessors (<code>modules_metadata_v1</code>, <code>try_get_modules_metadata_v1</code>) remain available and are made layout-aware, so callers compiled against IIP-0010 continue to work against objects in either layout. They are deprecated in favor of the new <code>module_metadata</code> / <code>*_function_metadata_v1</code> accessors.</li>
+<li><strong>Adding future kinds</strong>: new module metadata kinds can be added as additional dynamic-field keys without changing any existing type or payload, and without bumping the layout version.</li>
+</ol>
+<p>The <code>modules_metadata</code> inline field of <code>PackageMetadataV1</code> is retained for compatibility but is empty under the new layout and deprecated for reads.</p>
 <h2 id="test-cases"><a class="header" href="#test-cases">Test Cases</a></h2>
-<p>The new consensus crate will need to be extensively tested. In particular, all exising modules, e.g. block verifier, will require modifications in existing tests.
-All new modules (e.g. encoder/decoder) will require testing of typical possible scenarios.
-To ensure that the new consensus serves its purposes, there should be tests mimicking slow validators that fail to properly disseminate their blocks and this behaviour should not affect the liveness of the consensus.</p>
+<ol>
+<li>Authenticator metadata round-trips through the dynamic-field layout (publish a package with <code>#[authenticator]</code> functions; read back via both the new and the deprecated accessors).</li>
+<li>View function metadata is recorded for <code>#[view]</code> functions and queryable via <code>is_view_function_v1</code> / <code>borrow_view_functions_metadata_v1</code>.</li>
+<li>Conditional creation: a package with neither authenticators nor view functions produces no <code>PackageMetadata</code> object; a package with only view functions does.</li>
+<li>A package upgrade that removes a view function produces an updated metadata object for the new version while the previous version’s metadata stays valid.</li>
+<li>Deprecated accessors behave identically against legacy inline-layout objects and dynamic-field-layout objects.</li>
+<li>The bytecode verifier rejects a package that marks a non-conforming function as <code>#[view]</code> at publish time.</li>
+</ol>
 <h2 id="reference-implementation"><a class="header" href="#reference-implementation">Reference Implementation</a></h2>
-<p>A prototype implementation is available at <a href="https://github.com/iotaledger/starfish">github.com/iotaledger/starfish</a>. It includes:</p>
+<p>See <a href="https://github.com/iotaledger/iota/pull/11616">PR #11616</a> for the reference implementation. Key components:</p>
 <ul>
-<li>A new crate with core Starfish-specific components (tracking who knows which block headers, encoding/decoding, data fetcher, Starfish linearizer sequencer, etc.).</li>
-<li>Modified Mysticeti modules (Block store, Linearizer, Block Verifier).</li>
-<li>Simulation scripts to test latency, throughput and bandwidth efficiency locally and in a geo-distributed network.</li>
+<li>Framework modules <code>iota::package_metadata</code> and <code>iota::module_metadata</code> (<code>crates/iota-framework/packages/iota-framework/sources/package_metadata/</code>).</li>
+<li>Protocol-side object creation under the feature flag (<code>iota-execution/latest/iota-adapter/.../package_metadata.rs</code>).</li>
+<li>View function bytecode verification (<code>iota-execution/latest/iota-verifier/.../view_function_verifier.rs</code>).</li>
+<li>Feature flag <code>package_metadata_with_dynamic_module_metadata</code> in <code>crates/iota-protocol-config</code>.</li>
 </ul>
-<p>This draft aids consensus developers and will be refined for production.</p>
+<p>See also <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a> (Package Metadata) and <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0011/IIP-0011.md">IIP-0011</a> (Core Move View Functions).</p>
 <h2 id="copyright"><a class="header" href="#copyright">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
-</nikita.polianskii@iota.org></pre>
+</mirko.zichichi@iota.org></lorenzo.benetollo@iota.org></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../iips/IIP-0001/iip-0001.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../iips/IIP-0012/iip-0012.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../iips/IIP-0003/iip-0003.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -293,13 +361,10 @@ To ensure that the new consensus serves its purposes, there should be tests mimi
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../iips/IIP-0001/iip-0001.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../iips/IIP-0012/iip-0012.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../iips/IIP-0003/iip-0003.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
-                    </a>
             </nav>
 
         </div>

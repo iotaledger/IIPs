@@ -15,8 +15,8 @@
         <link rel="icon" href="../../favicon-de23e50b.svg">
         <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
         <link rel="stylesheet" href="../../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../../css/general-0392ca55.css">
-        <link rel="stylesheet" href="../../css/chrome-fc474251.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
         <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -35,10 +35,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-e2a8cbf9.js";
+            window.path_to_searchindex_js = "../../searchindex-8de07a1a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-058a78f2.js"></script>
+        <script src="../../toc-fc6c2a6a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -246,7 +246,7 @@ requires: IIP-0010
 <p>Employing an <code>AddressOwner</code> ownership relation, instead, allows the sender to simply use the AI Account Identifier as the address. This choice renders AI Accounts indistinguishable from EOA addresses at the ownership level.</p>
 <p>Objects transferred to an AI Account Identifier do not require explicit acceptance by the receiver. When set as inputs of a transaction, their “unlocking” is performed by verifying that the AI Account Identifier matches the sender of the transaction, thereby ensuring that the account is authenticated.</p>
 <p>Figure 1 illustrates how the <code>AddressOwner(IotaAddress)</code> ownership variant applies to both EOA and AI Accounts. As shown, the external interface is identical, but the underlying derivation and verification mechanisms differ at the protocol level.</p>
-<p><img src="fig-1-ownership.svg" alt="Ownership variants"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="fig-1-ownership.svg" alt="Ownership variants"><span class="img-wrapper"><img src="fig-1-ownership.svg" alt="Ownership variants"></span></label></p>
 <p>The following table summarizes the key differences:</p>
 <div class="table-wrapper">
 <table>
@@ -275,7 +275,7 @@ requires: IIP-0010
 </blockquote>
 <p>The proposed addition of <code>MoveAuthenticator</code> extends the set of <code>GenericSignature</code> variants to support dynamic authentication logic. With this extension, third-party developers can deploy Move packages implementing a custom <code>AuthenticatorFunction</code>. An AI Account can then be configured to delegate its authentication to such a package. Inputs to the <code>AuthenticatorFunction</code> are encoded as <code>Vec&lt;CallArg&gt;</code> (where <code>CallArg</code> is a type defining pure and object arguments) and provided in the <code>MoveAuthenticator</code> signature field. The function either completes successfully or aborts with an error if authentication fails.</p>
 <p>Figure 2 compares the authentication flow for transactions issued by EOA and AI Accounts. The key distinction is that EOAs rely on cryptographic signature verification at the protocol level, whereas AI Accounts delegate verification to a developer-defined <code>AuthenticatorFunction</code> executed in Move.</p>
-<p><img src="./fig-2-transactions.svg" alt="Transaction authentication"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./fig-2-transactions.svg" alt="Transaction authentication"><span class="img-wrapper"><img src="./fig-2-transactions.svg" alt="Transaction authentication"></span></label></p>
 <p>The following subsections describe each authentication flow in detail.</p>
 <h5 id="traditional-eoa-transaction-authentication"><a class="header" href="#traditional-eoa-transaction-authentication">(Traditional) EOA Transaction Authentication</a></h5>
 <p><code>TransactionData</code> is the payload that makes transactions cryptographically unique. It includes sender, inputs, commands and gas data. Passing the raw bytes of the payload to a hash function yields its digest, i.e., <code>TransactionDigest</code>, which becomes the transaction identifier (encoded in base58).</p>
@@ -299,7 +299,7 @@ requires: IIP-0010
 }
 </code></pre>
 <p>Figure 3 illustrates a concrete example in which a custom Authenticator Move Package is deployed and linked to an AI Account to provide authentication:</p>
-<p><img src="fig-3-ai-auth-example.svg" alt="Custom move based authenticator"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="fig-3-ai-auth-example.svg" alt="Custom move based authenticator"><span class="img-wrapper"><img src="fig-3-ai-auth-example.svg" alt="Custom move based authenticator"></span></label></p>
 <p>In the example above, we imagine a scenario where a developer independently develops the Custom Authenticator package deployed at the address <code>0x789</code> (i.e., package id). This package defines the account interface through a module named <code>custom_auth</code>. In this module a <code>0x789::custom_auth::CustomAccount</code> Move object type is defined, which represents a specific implementation of an AI Account. The <code>CustomAccount</code> uses the field <code>auth_helpers</code> to store data on-chain; the logic governing this account is arbitrarily defined by the developer.</p>
 <p>The only field required to make <code>CustomAccount</code> an AI Account is a dynamic field using the <code>0x2::account::AuthenticatorFunctionRefV1Key</code> key and <code>0x2::authenticator_function::AuthenticatorFunctionRef</code> value. This dynamic field entry can only be created through a framework method in the <code>0x2::account</code> module, namely <code>create_account_v1</code>.</p>
 <p>The object with id <code>0xabc</code>, once becoming an AI Account, has an authentication method clearly defined by the “attached” <code>AuthenticatorFunctionRef</code>. This struct references a specific function within the category of Move functions known as <code>AuthenticatorFunction</code>. In the example, it references the <code>0x789::custom_auth::authenticate</code> function defined in the same module.</p>
@@ -345,7 +345,7 @@ requires: IIP-0010
 <h4 id="creating-authenticatorfunctionref"><a class="header" href="#creating-authenticatorfunctionref">Creating AuthenticatorFunctionRef</a></h4>
 <p>The <code>AuthenticatorFunctionRef</code>, as described above, is a struct that uniquely identifies a function within a package deployed on-chain. Its creation is enabled via the Package Metadata Standard (see <a href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0010/IIP-0010.md">IIP-0010</a>).</p>
 <p>Figure 4 shows how the <code>PackageMetadata</code> object is used to validate and create an <code>AuthenticatorFunctionRef</code> during package publication.</p>
-<p><img src="fig-4-authenticator-function-ref.svg" alt="Creating authenticator function references"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="fig-4-authenticator-function-ref.svg" alt="Creating authenticator function references"><span class="img-wrapper"><img src="fig-4-authenticator-function-ref.svg" alt="Creating authenticator function references"></span></label></p>
 <p>Continuing with the same example from the previous subsection, consider the <code>CustomAuthenticator</code> package. When this package is published to the ledger, an associated <code>PackageMetadata</code> immutable object is created. This immutable object contains metadata for each module, including functions found in the <code>0x789::custom_auth</code> module. Specifically, the <code>0x789::custom_auth::authenticate</code> function is designated as an “authenticator” within the <code>PackageMetadata</code> object. To be designated as an authenticator, a function MUST follow the rules listed in the previous subsection and MUST be annotated with the <code>#[authenticator]</code> function attribute.</p>
 <p>The <code>PackageMetadata</code> object acts as a source of validation. This object is created by the protocol during package publication. If an <code>#[authenticator]</code> attribute is found for a function, the protocol validates that function using the <code>iota-move-verifier</code>. Since <code>PackageMetadata</code> is an immutable object that can only be created by the protocol, it cannot be forged with an unauthorized authenticator function.</p>
 <p>Given the trusted nature of the <code>PackageMetadata</code>, an <code>AuthenticatorFunctionRef</code> can be created by passing a <code>PackageMetadata</code> object as input. The function <code>0x2::authenticator_function::create_auth_function_ref</code> takes a <code>PackageMetadata</code>, a module name, and a function name, then verifies whether these inputs resolve to a valid authenticator function; if so, it returns an <code>AuthenticatorFunctionRef</code>. This reference is then used to create an account.</p>
@@ -446,7 +446,7 @@ requires: IIP-0010
 
         <script src="../../clipboard-1626706a.min.js"></script>
         <script src="../../highlight-abc7f01d.js"></script>
-        <script src="../../book-c22b7243.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

@@ -15,8 +15,8 @@
         <link rel="icon" href="../../favicon-de23e50b.svg">
         <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
         <link rel="stylesheet" href="../../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../../css/general-0392ca55.css">
-        <link rel="stylesheet" href="../../css/chrome-fc474251.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
         <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -35,10 +35,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-e2a8cbf9.js";
+            window.path_to_searchindex_js = "../../searchindex-8de07a1a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-058a78f2.js"></script>
+        <script src="../../toc-fc6c2a6a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -197,9 +197,9 @@ In the case of both the existing sequencer and this proposal, transactions are p
 <h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
 <p>To understand the motivation for the sequencer improvements proposed here, consider the following example.</p>
 <p>The consensus module produces a commit containing the following set of transactions without regard for their exact ordering within the commit. The lettered blocks within each transaction indicate that the transaction writes to that shared object. In this example, we have four shared objects, <code>a</code>, <code>b</code>, <code>c</code> and <code>d</code>.</p>
-<p><img src="./commit.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./commit.svg" alt="image"><span class="img-wrapper"><img src="./commit.svg" alt="image"></span></label></p>
 <p>These transactions can then be placed in descending order of gas price where transaction number 1 pays the highest gas price.</p>
-<p><img src="./ordered.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./ordered.svg" alt="image"><span class="img-wrapper"><img src="./ordered.svg" alt="image"></span></label></p>
 <p>Suppose, for the purpose of this example, that each transaction requires one time unit to execute, and for each commit, we want to limit the longest sequential execution to 5 time units to help the execution keep up with the rate of consensus commits.
 We can clearly see that if we executed every transaction sequentially, it would require 11 time units, so 6 of these transactions would need to be deferred.
 In fact, we can do much better than this because transactions with no shared object dependencies can be executed in parallel, but we also need to consider preserving the gas-price ordering of transactions to ensure fairness for users.</p>
@@ -208,7 +208,7 @@ The limit placed on expected execution time serves as a congestion control, ensu
 <h2 id="the-existing-sequencer"><a class="header" href="#the-existing-sequencer">The existing sequencer</a></h2>
 <p>The existing sequencer iterates over the transactions in decreasing gas price order and assigns a new order allowing for parallel execution of transactions when they have no shared objects in common. If a pair of transactions write to <strong>any</strong> common shared object, their gas-price ordering must be preserved in this algorithm.
 The sequencing result in this example is as follows with the existing sequencer.</p>
-<p><img src="./current.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./current.svg" alt="image"><span class="img-wrapper"><img src="./current.svg" alt="image"></span></label></p>
 <p>The first three transactions all touch <code>a</code>, so they must be executed sequentially in their gas price order.
 Transaction 4 must be executed after transaction 3 in the current sequencer because they both touch <code>c</code>, so their gas price order must be preserved.
 It would be feasible to execute transaction 4 in parallel with transaction 1 or 2 because they do not touch any common shared objects, but this would violate the gas price ordering between 3 and 4.
@@ -218,7 +218,7 @@ Transactions 8, 9 and 11 are all able to be executed in parallel without violati
 <p>In our proposal, we relax the requirement on gas price ordering so it only needs to be preserved if a transaction touches <strong>all</strong> the same shared objects.
 We assign the new transaction order one by one as before, but now we simply assign the transaction to the earliest execution start time where there is no transaction already sequenced that touches any common shared objects.
 The result for our example is illustrated below.</p>
-<p><img src="./improved.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./improved.svg" alt="image"><span class="img-wrapper"><img src="./improved.svg" alt="image"></span></label></p>
 <p>The first three transactions are the same as before, but when we get to transaction 4, illustrated in orange here, we can sequence it in parallel to transaction 1 this time, placing transaction 4 in a higher position than transaction 3 because we do not need to preserve their gas price order as they do not touch an identical set of shared objects. Transactions 5 and 11 can also be sequenced in earlier slots than before this time due to the new algorithm. Additionally, transactions 6 and 10 can now be executed instead of being deferred as indicated in red.</p>
 <h2 id="specification"><a class="header" href="#specification">Specification</a></h2>
 <p>The proposed algorithm is specified in <a href="./ICBC_2025_Sequencing.pdf">this paper</a>. The paper also provides proofs of a gas price fairness property and of improved throughput compared with the existing algorithm.</p>
@@ -233,16 +233,16 @@ We present a subset of representative here to make them publicly accessible.</p>
 To measure the performance of the proposed algorithm in reducing the number of cancellations, we stressed the network using a synthetic transaction set that consists of both directly and indirectly conflicting transactions.
 (An indirect conflict refers to two transactions with disjoint input objects sets that nonetheless both share at least one object with other conflicting transactions.)</p>
 <p>The figure below shows the cumulative number of cancellations over time during different trials of an experiment with 4000 transactions for both existing (canonical) and proposed (improved) algorithms. The number of cancellations was reduced by 60% in average.</p>
-<p><img src="./experiment_cumulative.svg" alt="image">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./experiment_cumulative.svg" alt="image"><span class="img-wrapper"><img src="./experiment_cumulative.svg" alt="image"></span></label>
 For comparison, the figure below shows the cumulative number of successfully executed transactions from the same experiment.</p>
-<p><img src="./experiment_cumulative_success.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./experiment_cumulative_success.svg" alt="image"><span class="img-wrapper"><img src="./experiment_cumulative_success.svg" alt="image"></span></label></p>
 <p>Note that the above experiment exemplifies the potential benefits of the improved sequencer well because the pattern of direct and indirect conflicts show the shortcomings of the canonical sequencer.
 However, for any consensus commit, the improved sequencer will always sequence at least as many transactions as the canonical sequencer as proven in <a href="./ICBC_2025_Sequencing.pdf">this paper</a>.
 To further demonstrate the effectiveness of the new approach, we repeated experiments with transactions whose inputs sets are generated randomly, without controling the ratio of direct/indirect conflicts.
 We note that due to the random nature of the experiments, transactions are most likely to be in direct conflict, meaning there is less room for improvement.
 Even in this case, the number of cancellations was reduced by 7% in average.
 The figure below summarizes the comparison between the two algorithms in terms of the average number of cancellations for varying number of objects per transaction.</p>
-<p><img src="./experiment_boxplot.svg" alt="image"></p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="./experiment_boxplot.svg" alt="image"><span class="img-wrapper"><img src="./experiment_boxplot.svg" alt="image"></span></label></p>
 <h2 id="copyright"><a class="header" href="#copyright">Copyright</a></h2>
 <p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
 
@@ -294,7 +294,7 @@ The figure below summarizes the comparison between the two algorithms in terms o
 
         <script src="../../clipboard-1626706a.min.js"></script>
         <script src="../../highlight-abc7f01d.js"></script>
-        <script src="../../book-c22b7243.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 
