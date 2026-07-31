@@ -26,7 +26,7 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 
 ## List of IIPs
 
-- Last updated: 2026-06-10
+- Last updated: 2026-07-31
 - The _Status_ of a IIP reflects its current state with respect to its progression to being supported on the IOTA Mainnet.
   - `Draft` IIPs are work in progress. They may or may not have a working implementation on a testnet.
   - `Proposed` IIPs are demonstrated to have a working implementation on the IOTA Devnet or Testnet.
@@ -47,7 +47,7 @@ You may find more information about the IIP Process in [IIP-1](./iips/IIP-0001/i
 | 9   | [Abstract IOTA Accounts](iips/IIP-0009/IIP-0009.md)                                                     | Abstract accounts on IOTA enable smart-contract-based authentication of addresses.                                                                | Standards | Core      | Proposed |
 | 10  | [Package Metadata](iips/IIP-0010/IIP-0010.md)                                                           | Immutable on-chain object that provides trusted metadata about Move packages during execution                                                     | Standards | Core      | Proposed |
 | 11  | [Core Move View Functions](iips/IIP-0011/IIP-0011.md)                                                   | Move view functions - definition and specification at language level.                                                                             | Standards | Core      | Draft    |
-| 12  | [Starfish Speed Consensus Protocol](iips/IIP-0012/iip-0012.md)                                          | Optimistic transaction sequencing extension for Starfish that reduces commit latency                                                              | Standards | Core      | Draft    |
+| 12  | [Starfish Speed Consensus Protocol](iips/IIP-0012/iip-0012.md)                                          | Optimistic transaction sequencing extension for Starfish that reduces commit latency                                                              | Standards | Core      | Proposed |
 | 13  | [Dynamic Module Metadata](iips/IIP-0013/IIP-0013.md)                                                    | Store package module metadata in dynamic fields so it can be extended without changing the package metadata object type                           | Standards | Core      | Draft    |
 
 ## Need help?
